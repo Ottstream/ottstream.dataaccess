@@ -1,6 +1,6 @@
 {
   "name": "ottstream.dataaccess",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -8,6 +8,9 @@
   },
   "keywords": [],
   "author": "",
+  "publishConfig": {
+    "registry": "http://ott:4873/"
+  },
   "license": "ISC",
   "dependencies": {
     "authorizenet": "^1.0.8",
