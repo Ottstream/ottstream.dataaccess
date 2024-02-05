@@ -1,4 +1,9 @@
 module.exports.authRepository = require('./auth/auth.repository');
+module.exports.backupRepository = require('./backup/backup.repository');
+module.exports.deviceOptionRepository = require('./device/device_option.repository');
+
+module.exports.packagesRepository = require('./package/package.repository');
+
 module.exports.creditRepository = require('./payment/credit.repository');
 module.exports.balanceRepository = require('./payment/balance.repository');
 module.exports.invoiceRepository = require('./payment/invoice.repository');
