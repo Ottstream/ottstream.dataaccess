@@ -5,7 +5,7 @@ const { File } = require('../../models');
 const ApiError = require('../../api/utils/error/ApiError');
 const langPick = require('../../utils/helpers/langPick');
 const config = require('../../config/config');
-// const { resizeImage } = require('../../utils/image_processing/sharp_helper');
+const { resizeImage } = require('../../utils/image_processing/sharp_helper');
 
 /**
  * Create a file
