@@ -1,5 +1,6 @@
-const {repositories} = require('./src');
+const {repositories, models} = require('./src');
 
 module.exports =  {
-    repositories
+    repositories,
+    models
 }
