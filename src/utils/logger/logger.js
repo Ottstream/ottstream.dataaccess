@@ -3,6 +3,7 @@ const os = require('os');
 const winston = require('winston');
 const config = require('../../config/config');
 
+
 // eslint-disable-next-line new-cap
 const grayLogger = new graylog2.graylog({
   servers: [{ host: config.graylog.host, port: config.graylog.port }],

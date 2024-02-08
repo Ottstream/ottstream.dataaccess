@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const config = require('../../config/config');
+// const config = conf.Config.myConfig
 const logger = require('../../utils/logger/logger');
 const ottProviderEmailRepository = require('../../repository/ottprovider/ottprovider_email.repository');
 
