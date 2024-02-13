@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const autoIncrement = require('mongoose-auto-increment');
+const autoIncrement = require('../../utils/mongoose-auto-increment');
 const { toJSON } = require('../plugins');
 const productIconSetItemSchema = require('./product_icon_set_item.model');
 

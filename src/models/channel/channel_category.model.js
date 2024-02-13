@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const autoIncrement = require('mongoose-auto-increment');
+const autoIncrement = require();
 const { toJSON, paginate } = require('../plugins');
 const translationSchema = require('../translation.model');
 

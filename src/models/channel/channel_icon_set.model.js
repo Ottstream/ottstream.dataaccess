@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const autoIncrement = require('mongoose-auto-increment');
+const autoIncrement = require('../../utils/mongoose-auto-increment');
 const { toJSON, paginate } = require('../plugins');
 const channelIconSetItemSchema = require('./channel_icon_set_item.model');
 

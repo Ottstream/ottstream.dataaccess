@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const aggregatePaginate = require('mongoose-aggregate-paginate-v2');
-const autoIncrement = require('mongoose-auto-increment');
+const autoIncrement = require('../../utils/mongoose-auto-increment');
 const { toJSON, paginate } = require('../plugins');
 const packagePriceSchema = require('./package_price.model');
 
