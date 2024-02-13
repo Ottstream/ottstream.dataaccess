@@ -208,6 +208,5 @@ class Config {
 }
 
 const config = new Config()
-Object.freeze(config);
 
 module.exports = config
