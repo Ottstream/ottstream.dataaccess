@@ -206,13 +206,13 @@ Sorry Your account was not approved You will receive an email about why your app
 const transport = nodemailer.createTransport({
   service: 'Yandex',
   auth: {
-    user: config.email.smtp.auth.user,
-    pass: config.email.smtp.auth.pass,
+    user: config?.email?.smtp?.auth?.user,
+    pass: config?.email?.smtp?.auth?.pass,
   },
 }); // TODO if works on production normal move to configs: config.email.smtp Object file
 
 /* istanbul ignore next */
-if (config.env !== 'test') {
+if (config?.env !== 'test') {
   transport
     .verify()
     .then(() => logger.info('Connected to email server'))
