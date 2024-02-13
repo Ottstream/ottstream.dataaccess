@@ -1,6 +1,6 @@
 const redis = require('redis');
 const logger = require('../../utils/logger/logger');
-const config = require('../../config/config');
+const config = require('../../config');
 
 class RedisCache {
   constructor() {
