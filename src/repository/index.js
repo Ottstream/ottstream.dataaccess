@@ -53,6 +53,7 @@ const productTypeRepository = require('./product/product_type.repository');
 const productPriceGroupRepository = require('./product/product_price_group.repository');
 const discountRepository = require('./discount/discount.repository');
 const clientRepository = require('./client/client.repository');
+const clientSharedRepository = require('./client/client.shared.repository');
 const clientBillRepository = require('./client_bill/client_bill.repository');
 const clientActivityRepository = require('./client/client_activity.repository');
 const clientPaymentMethodRepository = require('./client/client_payment_method.repository');
@@ -142,6 +143,7 @@ module.exports = {
   clientActivityRepository,
   clientPaymentMethodRepository,
   clientPackageRepository,
+  clientSharedRepository,
   clientLocationRepository,
   clientProfileRepository,
   clientUsedDeviceRepository,

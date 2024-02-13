@@ -67,7 +67,7 @@ const resetTimezones = async () => {
  */
 // eslint-disable-next-line no-unused-vars
 const getBaseOttProvider = async (id, options = {}) => {
-  return OttProvider.findOne({ type: 0 }, {}).populate(ottProviderPopulateObject);
+  return await OttProvider.findOne({ type: 0 }, {}).populate(ottProviderPopulateObject);
 };
 
 const orderParents = async (providerId, list) => {
@@ -1543,10 +1543,20 @@ const getOttProviderSettings = async (id, options = {}) => {
  */
 // eslint-disable-next-line no-unused-vars
 const getOttProviders = async (filter = {}, populate = [], projection = null) => {
-  const query = OttProvider.find(filter).populate(populate);
+  const query = await OttProvider.find(filter).populate(populate);
   if (projection) query.projection(projection);
   return query;
 };
+// const getOttProviders = async (filter = {}, populate = [], projection = null) => {
+//   let query = OttProvider.find(filter);
+//   if (populate.length > 0) {
+//     query = query.populate(populate);
+//   }
+//   if (projection) {
+//     query = query.select(projection);
+//   }
+//   return query.exec();
+// };
 
 /**
  * Get ottproviders
