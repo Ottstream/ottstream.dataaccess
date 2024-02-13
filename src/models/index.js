@@ -42,7 +42,6 @@ module.exports.OttProviderInvoice = require('./ottprovider/ottprovider_invoice.m
 module.exports.Channel = require('./channel/channel.model');
 module.exports.ChannelIconSet = require('./channel/channel_icon_set.model');
 module.exports.ChannelIconSetType = require('./channel/channel_icon_set_type.model');
-module.exports.ChannelCategory = require('./channel/channel_category.model');
 
 module.exports.Package = require('./package/package.model');
 module.exports.PackageOption = require('./package/package_options.model');
