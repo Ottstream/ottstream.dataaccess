@@ -226,7 +226,7 @@ Total Price            -  После выбора Global Action и выбора 
  */
 // eslint-disable-next-line no-unused-vars
 const getLocationSubscriptions = async (locationId) => {
-  return Subscription.find({
+  const subscription = await Subscription.find({
     location: locationId,
     state: 1,
   }).populate([
@@ -240,6 +240,7 @@ const getLocationSubscriptions = async (locationId) => {
       path: 'location',
     },
   ]);
+  return subscription;
 };
 
 /**

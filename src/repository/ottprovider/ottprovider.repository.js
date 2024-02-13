@@ -67,7 +67,7 @@ const resetTimezones = async () => {
  */
 // eslint-disable-next-line no-unused-vars
 const getBaseOttProvider = async (id, options = {}) => {
-  return await OttProvider.findOne({ type: 0 }, {}).populate(ottProviderPopulateObject);
+  return OttProvider.findOne({ type: 0 }, {}).populate(ottProviderPopulateObject);
 };
 
 const orderParents = async (providerId, list) => {
@@ -1242,53 +1242,53 @@ const queryOttProviders = async (filter, options, user) => {
         as: 'registerBy',
       },
     },
-    {
-      $lookup: {
-        from: 'credits',
-        // localField: '_id',
-        // foreignField: 'providerId',
-        let: { id: '$_id' },
-        as: 'credits',
-        pipeline: [
-          {
-            $match: {
-              $expr: { $eq: ['$providerId', '$$id'] },
-            },
-          },
-        ],
-      },
-    },
-    {
-      $lookup: {
-        from: 'transactions',
-        // localField: '_id',
-        // foreignField: 'providerId',
-        let: { id: '$_id' },
-        as: 'transactions',
-        pipeline: [
-          {
-            $match: {
-              state: 1,
-            },
-          },
-          {
-            $match: {
-              $expr: { $eq: ['$from_provider', '$$id'] },
-            },
-          },
-          {
-            $project: {
-              from_provider: 1,
-              from_client: 1,
-              to_client: 1,
-              to_provider: 1,
-              createdAt: 1,
-              amount: 1,
-            },
-          },
-        ],
-      },
-    },
+    // {
+    //   $lookup: {
+    //     from: 'credits',
+    //     // localField: '_id',
+    //     // foreignField: 'providerId',
+    //     let: { id: '$_id' },
+    //     as: 'credits',
+    //     pipeline: [
+    //       {
+    //         $match: {
+    //           $expr: { $eq: ['$providerId', '$$id'] },
+    //         },
+    //       },
+    //     ],
+    //   },
+    // },
+    // {
+    //   $lookup: {
+    //     from: 'transactions',
+    //     // localField: '_id',
+    //     // foreignField: 'providerId',
+    //     let: { id: '$_id' },
+    //     as: 'transactions',
+    //     pipeline: [
+    //       {
+    //         $match: {
+    //           state: 1,
+    //         },
+    //       },
+    //       {
+    //         $match: {
+    //           $expr: { $eq: ['$from_provider', '$$id'] },
+    //         },
+    //       },
+    //       {
+    //         $project: {
+    //           from_provider: 1,
+    //           from_client: 1,
+    //           to_client: 1,
+    //           to_provider: 1,
+    //           createdAt: 1,
+    //           amount: 1,
+    //         },
+    //       },
+    //     ],
+    //   },
+    // },
     { $sort: sortObject },
   ];
   const finalAggregate = lookupFilter
@@ -1371,8 +1371,12 @@ const queryOttProviders = async (filter, options, user) => {
       }
     });
 
+    // eslint-disable-next-line no-param-reassign
+    elem.transactions = [];
+    // eslint-disable-next-line no-param-reassign
+    elem.credits = [];
     // transaction
-    if (elem.transactions.length) {
+    if (elem.transactions?.length) {
       list.docs[i].currentMonthPayments = elem.transactions
         .map((r) => (!r.from_provider && r.createdAt.getMonth() !== new Date().getMonth() ? null : r.amount))
         .reduce((prev, next) => prev + next, 0);
@@ -1456,7 +1460,7 @@ const queryOttProviders = async (filter, options, user) => {
       .map((el) => (el.currentMonthIncome > 0 ? el.currentMonthIncome : null))
       .reduce((prev, next) => prev + next, 0),
     totalCreditFromParent: list.docs
-      .map((item) => item.credits.reduce((prev, next) => prev + next.creditAmount, 0))
+      .map((item) => item.credits?.reduce((prev, next) => prev + next.creditAmount, 0))
       .reduce((prev, next) => prev + next, 0),
     totalDebt: list.docs
       .map((el) => (el.balance && el.balance < 0 ? String(el.balance).slice(1) : null))
@@ -1543,20 +1547,10 @@ const getOttProviderSettings = async (id, options = {}) => {
  */
 // eslint-disable-next-line no-unused-vars
 const getOttProviders = async (filter = {}, populate = [], projection = null) => {
-  const query = await OttProvider.find(filter).populate(populate);
+  const query = OttProvider.find(filter).populate(populate);
   if (projection) query.projection(projection);
   return query;
 };
-// const getOttProviders = async (filter = {}, populate = [], projection = null) => {
-//   let query = OttProvider.find(filter);
-//   if (populate.length > 0) {
-//     query = query.populate(populate);
-//   }
-//   if (projection) {
-//     query = query.select(projection);
-//   }
-//   return query.exec();
-// };
 
 /**
  * Get ottproviders

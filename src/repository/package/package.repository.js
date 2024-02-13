@@ -4,7 +4,7 @@ const { Package, PackageOption } = require('../../models');
 const ApiError = require('../../api/utils/error/ApiError');
 const { updateSubDocument } = require('../../utils/repository/subdocument_update');
 const priceUtils = require('../../utils/price/price_utils');
-const  ottProviderRepository  = require('../ottprovider/ottprovider.repository');
+const { ottProviderRepository } = require('../index');
 
 const packagePopulateObject = [
   // {

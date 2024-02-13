@@ -157,13 +157,19 @@ const queryTransactions = async (filter, options, user) => {
     });
   }
 
-  if (filter.ownProviders.length && !filter.client) {
-    transactionFilter.provider = { $in: filter.ownProviders };
-    // transactionFilter.provider = filter.baseprovider;
-  }
+  // if (filter.selectedResellers.length && !filter.client) {
+  //   transactionFilter.provider = { $in: filter.selectedResellers };
+  //   // transactionFilter.provider = filter.baseprovider;
+  // }
 
   if (typeof filter.autopayment !== 'undefined') {
     transactionFilter.autopayment = filter.autopayment;
+  }
+
+  if (filter.v2) {
+    transactionFilter.version = 'v2';
+  } else {
+    transactionFilter.version = { $ne: 'v2' };
   }
   if (typeof filter.transactionState !== 'undefined') {
     transactionFilter.state = filter.transactionState;
@@ -698,6 +704,16 @@ const updateOne = async (filter, updateBody) => {
 };
 
 /**
+ * delete many
+ * @param {Object} filter
+ * @param {Object} updateBody
+ * @returns {Promise<Transaction>}
+ */
+const deleteMany = async (filter) => {
+  return Transaction.deleteMany(filter);
+};
+
+/**
  * Delete transaction by id
  * @param {ObjectId} transactionId
  * @returns {Promise<Transaction>}
@@ -734,6 +750,7 @@ module.exports = {
   getTransactionByInvoiceId,
   updateTransactionById,
   deleteTransactionById,
+  deleteMany,
   getList,
   updateOne,
 };

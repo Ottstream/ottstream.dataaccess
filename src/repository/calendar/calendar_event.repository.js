@@ -10,12 +10,20 @@ const { updateSubDocument } = require('../../utils/repository/subdocument_update
 const calendarEventPopulateObject = [
   {
     path: 'client',
+    populate: {
+      path: 'provider',
+      select: '_id name',
+    },
+    select: '_id personalInfo emails phones info provider',
   },
   {
     path: 'location',
   },
   {
     path: 'equipmentInstaller',
+  },
+  {
+    path: 'user',
   },
 ];
 
@@ -84,7 +92,7 @@ const getCalendarEventByEqInstaller = async (EqInstaller, filter) => {
   const items = await CalendarEvent.find({
     equipmentInstaller: EqInstaller._id,
     ...calendarFilter,
-  });
+  }).sort({ startDate: 1 });
   return items;
 };
 
@@ -95,7 +103,7 @@ const getCalendarEventByEqInstaller = async (EqInstaller, filter) => {
  */
 // eslint-disable-next-line no-unused-vars
 const getCalendarEvents = async (filter) => {
-  const items = await CalendarEvent.find(filter).populate(calendarEventPopulateObject);
+  const items = await CalendarEvent.find(filter, { 'customerAddress.image': 0 }).populate(calendarEventPopulateObject);
   // items.forEach((elem) => {
   //   // eslint-disable-next-line no-param-reassign
   //   elem.typeName = calendarEventTypes.filter((r) => r.type === elem.type)[0].name;
@@ -161,6 +169,7 @@ const queryCalendarEvents = async (filter, options, user) => {
   let clients = [];
   if (filter.search && filter.search.length) {
     filter.search.replace('%20', ' ');
+    // eslint-disable-next-line security/detect-non-literal-regexp
     const regex = new RegExp(filter.search, 'i');
     // eslint-disable-next-line security/detect-non-literal-regexp
     const curUsers = await User.find(
@@ -291,19 +300,22 @@ const queryCalendarEvents = async (filter, options, user) => {
   // status to 1
   // calendarFilter.status = { $eq: 1 };
   // calendarFilter.provider = { $in: filter.providers };
-  return CalendarEvent.paginate(calendarFilter, curOptions, {}, [
+  return CalendarEvent.paginate(calendarFilter, curOptions, { 'customerAddress.image': 0 }, [
     {
       path: 'equipmentInstaller',
+      select: '_id firstname lastname email',
     },
     {
       path: 'client',
-      populate: [{ path: 'provider' }],
+      select: '_id personalInfo provider phones emails info',
+      populate: [{ path: 'provider', select: '_id name' }],
     },
     {
       path: 'location',
     },
     {
       path: 'user',
+      select: '_id firstname lastname email',
     },
   ]);
 };
@@ -338,7 +350,8 @@ const updateCalendarEventByIdNew = async (calendarEventId, updateBody) => {
   }
   Object.assign(item, updateBody);
   await item.save();
-  return getCalendarEventById(calendarEventId);
+  const calendarEvent = await getCalendarEventById(calendarEventId);
+  return calendarEvent;
 };
 
 /**

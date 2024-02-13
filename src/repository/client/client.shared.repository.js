@@ -35,7 +35,7 @@ const removeFromLocation = async (Id, key, value) => {
   }
 };
 
-const extractLocationData = (locationObject, packageSubscriptions = []) => {
+const extractLocationData = async (locationObject, packageSubscriptions = []) => {
   return {
     login: locationObject.login,
     subscriptionExpireDate: locationObject.subscriptionExpireDate,
@@ -56,7 +56,7 @@ const updateClientLocationInfo = async (locationObject, remove = false, packageS
     const key = 'info';
     const subKey = 'locations';
     if (client) {
-      let infoObject = [];
+      let infoObject = {};
       if (client[key]) {
         infoObject = client[key];
       }
@@ -70,13 +70,28 @@ const updateClientLocationInfo = async (locationObject, remove = false, packageS
           // eslint-disable-next-line no-restricted-syntax
           for (const i in infoObject[subKey]) {
             if (infoObject[subKey][i].login === locationObject.login) {
-              infoObject[subKey][i] = extractLocationData(locationObject, packageSubscriptoins);
+              // eslint-disable-next-line no-await-in-loop
+              infoObject[subKey][i] = await extractLocationData(locationObject, packageSubscriptoins);
             }
           }
-        } else infoObject[subKey].push(extractLocationData(locationObject, packageSubscriptoins));
+        } else infoObject[subKey].push(await extractLocationData(locationObject, packageSubscriptoins));
       } else {
         infoObject[subKey] = infoObject[subKey].filter((r) => r.login !== locationObject.login);
       }
+      infoObject.activePackages = 0;
+      const names = [];
+      // eslint-disable-next-line no-restricted-syntax
+      for (const location of infoObject[subKey]) {
+        if (location.subscriptionState === 3) {
+          // eslint-disable-next-line no-restricted-syntax
+          for (const packageSubscription of location.packageSubscriptions) {
+            const { name } = packageSubscription.name[0];
+            // eslint-disable-next-line no-unused-expressions
+            !names.includes(name) ? names.push(name) : null;
+          }
+        }
+      }
+      infoObject.activePackages = names.length;
       await Client.updateOne({ _id: clientId }, { info: infoObject });
     }
   }

@@ -12,6 +12,12 @@ const tokenService = require('./token.repository');
 // eslint-disable-next-line no-unused-vars
 const roleService = require('../role/role.repository');
 const Token = require('../../models/user/token.model');
+// const serviceCollection = require('../../services/service_collection');
+const EventBusService = require('../../services/event_bus/eventbusService.service');
+const {
+  getOttProviderConversationProviderByProviderId,
+} = require('../ottprovider/ottprovider_conversation_provider.repository');
+const logger = require('../../utils/logger/logger');
 
 const userPopulate = [
   {
@@ -190,6 +196,8 @@ const queryUsers = async (filter, options, user) => {
   // resellers
   if (user && user.provider) {
     match.provider = { $eq: mongoose.Types.ObjectId(user.provider._id.toString()) };
+  }
+  if (filter.registrations) {
     match._id = { $ne: mongoose.Types.ObjectId(user._id) };
   }
 
@@ -761,6 +769,58 @@ const getList = async (filter = {}, populate = [], projection = null) => {
   return query;
 };
 
+/**
+ * Patch update User
+ * @returns {Promise<User>}
+ * @param {Object} userId
+ */
+const findDifferentAndUpdateUser = async (req) => {
+  const { userId } = req.params;
+  const oldUser = await getUserById(userId);
+  const data = req.body;
+
+  const newUser = await updateUserById(userId, data);
+
+  if (oldUser.rolesInfo && newUser.rolesInfo) {
+    let roleUpdated = false;
+    ['cashier', 'advancedCashier', 'equipmentInstaller', 'support', 'admin'].forEach((item) => {
+      if (oldUser.rolesInfo[item] !== newUser.rolesInfo[item]) {
+        roleUpdated = true;
+      }
+    });
+    if (roleUpdated) {
+      // const permissionsObject = RoleService.GetUserPermissions(newUser, true);
+      // await BroadcastService.broadcastOttUser(newUser._id.toString(), 'permissions', permissionsObject);
+    }
+
+    // logic for telegraamBot
+    if (
+      (data.accessEnable &&
+        !newUser.rolesInfo.equipmentInstaller &&
+        newUser.rolesInfo.equipmentInstaller !== oldUser.rolesInfo.equipmentInstaller) ||
+      (newUser.rolesInfo.equipmentInstaller && data.accessEnable === false)
+    ) {
+      const eventBusService = new EventBusService({ connect: true });
+      if (!eventBusService.isConnected) await eventBusService.connect();
+
+      const provider = await getOttProviderConversationProviderByProviderId(newUser.provider._id);
+      const contentType = req.get('Content-Type');
+      logger.info(
+        `webhookcontroller:telegram() time: ${new Date().getTime()} ms ${contentType} ${JSON.stringify(req.body)}`
+      );
+
+      await eventBusService.send('telegram-bot', {
+        body: {
+          newUser,
+          provider,
+          disable: true,
+        },
+      });
+    }
+  }
+  return newUser;
+};
+
 module.exports = {
   getList,
   createUser,
@@ -787,4 +847,5 @@ module.exports = {
   UserCheckPhone,
   getAllUsers,
   getUserByTelegramLogin,
+  findDifferentAndUpdateUser,
 };

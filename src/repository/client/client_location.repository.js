@@ -151,8 +151,8 @@ const getClientLocationByClientId = async (clientId) => {
  */
 // eslint-disable-next-line no-unused-vars
 const getClientLocations = async (filter = {}, populate = [], projection = null) => {
-  const query = ClientLocation.find(filter).populate(populate);
-  if (projection) query.projection(projection);
+  const query = await ClientLocation.find(filter).populate(populate);
+  if (projection && query.projection) query.projection(projection);
   return query;
 };
 
