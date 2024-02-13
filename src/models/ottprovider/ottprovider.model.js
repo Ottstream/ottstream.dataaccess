@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 // eslint-disable-next-line no-unused-vars
 const validator = require('validator');
+const aggregatePaginate = require('mongoose-aggregate-paginate-v2');
 const autoIncrement = require('../../utils/mongoose-auto-increment');
 // const { autoIncrement } = require('mongoose-plugin-autoinc');
-const aggregatePaginate = require('mongoose-aggregate-paginate-v2');
 const { toJSON, paginate } = require('../plugins');
 const { companyTypes } = require('../../config/company_types');
 const translationSchema = require('../translation.model');

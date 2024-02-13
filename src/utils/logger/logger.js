@@ -6,7 +6,7 @@ const config = require('../../config/config');
 
 // eslint-disable-next-line new-cap
 const grayLogger = new graylog2.graylog({
-  servers: [{ host: config?.graylog?.host, port: config?.graylog?.port }],
+  servers: [{ host: config?.graylog?.host || 'logs.ottstream.net', port: config?.graylog?.port || 12201 }],
   hostname: os.hostname(), // the name of this host
   // (optional, default: os.hostname())
   facility: config?.graylog?.name, // the facility for these log messages

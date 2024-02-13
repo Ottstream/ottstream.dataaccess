@@ -112,6 +112,7 @@ const transactionSchema = mongoose.Schema(
     },
     to_client: { type: Schema.Types.ObjectId, ref: 'Client' },
     to_provider: { type: Schema.Types.ObjectId, ref: 'OttProvider' },
+    version: { type: String },
   },
   {
     timestamps: true,

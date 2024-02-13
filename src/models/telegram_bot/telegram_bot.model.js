@@ -11,6 +11,10 @@ const telegramBot = mongoose.Schema(
     users: {
       type: Object,
     },
+    lastMessageId: {
+      type: Number,
+      required: false,
+    },
   },
   {
     timestamps: true,
