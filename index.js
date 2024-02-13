@@ -1,5 +1,5 @@
 // const { Config } = require('./src/config/config');
-
+const config = require('./config');
 
 // async function connect(MongoUrl) { 
 //     const mongoose = require('mongoose');
@@ -35,5 +35,6 @@
         const { repositories, models } = require('./src');
         module.exports = {
             repositories,
-            models
+            models,
+            config
         }
