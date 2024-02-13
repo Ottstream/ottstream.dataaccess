@@ -3,7 +3,12 @@ const Joi = require('joi');
 class Config {
 
     constructor() {
-        this.configObject = {};
+        if (!Config.instance) {
+            this.configObject = {};
+            Config.instance = this;
+          // All initialization in here
+        }
+        return Config.instance;
     }
 
     initConfig() {
@@ -203,5 +208,6 @@ class Config {
 }
 
 const config = new Config()
+Object.freeze(config);
 
 module.exports = config
