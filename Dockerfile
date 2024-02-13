@@ -11,7 +11,7 @@ WORKDIR /usr/src/node-app
 COPY package.json ./
 
 # Copy package.json and package-lock.json
-COPY .npmrc ./
+COPY . ./
 
 RUN npm config set registry https://npm.ottstream.net/
 
