@@ -6,10 +6,10 @@ const config = require('../../config/config');
 
 // eslint-disable-next-line new-cap
 const grayLogger = new graylog2.graylog({
-  servers: [{ host: config.graylog.host, port: config.graylog.port }],
+  servers: [{ host: config?.graylog?.host, port: config?.graylog.port }],
   hostname: os.hostname(), // the name of this host
   // (optional, default: os.hostname())
-  facility: config.graylog.name, // the facility for these log messages
+  facility: config?.graylog.name, // the facility for these log messages
   // (optional, default: "Node.js")
   bufferSize: 1350, // max UDP packet size, should never exceed the
   // MTU of your system (optional, default: 1400)
@@ -28,10 +28,10 @@ const enumerateErrorFormat = winston.format((info) => {
 });
 
 const winstonLogger = winston.createLogger({
-  level: config.env === 'development' ? 'debug' : 'info',
+  level: config?.env === 'development' ? 'debug' : 'info',
   format: winston.format.combine(
     enumerateErrorFormat(),
-    config.env === 'development' ? winston.format.colorize() : winston.format.uncolorize(),
+    config?.env === 'development' ? winston.format.colorize() : winston.format.uncolorize(),
     winston.format.splat(),
     winston.format.printf(({ level, message }) => `${level}: ${message}`)
   ),
