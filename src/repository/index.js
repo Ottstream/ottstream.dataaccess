@@ -83,6 +83,7 @@ const chatRepository = require('./chat/chat.repository');
 const smsRepository = require('./sms/sms.repository');
 const helpRepository = require('./help/help.repository');
 const telegramBotRepository = require('./telegram_bot/telegram_bot.repository');
+const botMessagesRepository = require('./telegram_bot/bot_messages.repository');
 
 module.exports = {
   authRepository,
@@ -168,5 +169,6 @@ module.exports = {
   chatRepository,
   smsRepository,
   helpRepository,
-  telegramBotRepository
+  telegramBotRepository,
+  botMessagesRepository
 };
