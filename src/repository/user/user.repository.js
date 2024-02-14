@@ -1,7 +1,7 @@
 const httpStatus = require('http-status');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const config = require('../../config/config');
+const config = require('../../../config');
 // eslint-disable-next-line no-unused-vars
 const { User, OttProvider } = require('../../models');
 const ApiError = require('../../api/utils/error/ApiError');
@@ -709,7 +709,7 @@ const resetPassword = async (resetPasswordToken, newPassword) => {
   try {
     // tested verify token
     // const resetPasswordTokenDoc = await tokenService.verifyToken(resetPasswordToken, 'resetPassword');
-    const payload = jwt.verify(resetPasswordToken, config.jwt.secret);
+    const payload = jwt.verify(resetPasswordToken, config.getConfig().jwt.secret);
     const tokenDoc = await Token.findOne({ resetPasswordToken, resetPassword, user: payload.sub, blacklisted: false });
     if (!tokenDoc) {
       throw new Error('Token not found');

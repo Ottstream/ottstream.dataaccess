@@ -1,7 +1,7 @@
 const ApiContracts = require('authorizenet').APIContracts;
 const ApiControllers = require('authorizenet').APIControllers;
 const SDKConstants = require('authorizenet').Constants;
-const config = require('../../../config/config');
+const config = require('../../../../config');
 const clientPaymentMethodRepository = require('../../../repository/client/client_payment_method.repository');
 const logger = require('../../../utils/logger/logger');
 
@@ -143,7 +143,7 @@ class AuthorizeService {
 
     const ctrl = new ApiControllers.GetUnsettledTransactionListController(getRequest.getJSON());
 
-    const endpoint = config.authorize_prod_endpoint ? SDKConstants.endpoint.production : SDKConstants.endpoint.sandbox;
+    const endpoint = config.getConfig().authorize_prod_endpoint ? SDKConstants.endpoint.production : SDKConstants.endpoint.sandbox;
     ctrl.setEnvironment(endpoint);
 
     return new Promise((resolve, reject) => {
@@ -207,7 +207,7 @@ class AuthorizeService {
     createRequest.setMerchantAuthentication(merchantAuthenticationType);
 
     const ctrl = new ApiControllers.CreateCustomerProfileController(createRequest.getJSON());
-    const endpoint = config.authorize_prod_endpoint ? SDKConstants.endpoint.production : SDKConstants.endpoint.sandbox;
+    const endpoint = config.getConfig().authorize_prod_endpoint ? SDKConstants.endpoint.production : SDKConstants.endpoint.sandbox;
     ctrl.setEnvironment(endpoint);
     return new Promise((resolve) => {
       ctrl.execute(() => {
@@ -248,7 +248,7 @@ class AuthorizeService {
     getRequest.setMerchantAuthentication(merchantAuthenticationType);
 
     const ctrl = new ApiControllers.GetCustomerProfileController(getRequest.getJSON());
-    const endpoint = config.authorize_prod_endpoint ? SDKConstants.endpoint.production : SDKConstants.endpoint.sandbox;
+    const endpoint = config.getConfig().authorize_prod_endpoint ? SDKConstants.endpoint.production : SDKConstants.endpoint.sandbox;
     ctrl.setEnvironment(endpoint); // Change to sandbox for testing
     return new Promise((resolve) => {
       ctrl.execute(() => {
@@ -283,7 +283,7 @@ class AuthorizeService {
 
     createRequest.setMerchantAuthentication(merchantAuthenticationType);
     const controller = new ApiControllers.CreateCustomerPaymentProfileController(createRequest.getJSON());
-    const endpoint = config.authorize_prod_endpoint ? SDKConstants.endpoint.production : SDKConstants.endpoint.sandbox;
+    const endpoint = config.getConfig().authorize_prod_endpoint ? SDKConstants.endpoint.production : SDKConstants.endpoint.sandbox;
     controller.setEnvironment(endpoint); // Change to sandbox for testing
 
     return new Promise((resolve) => {
@@ -336,7 +336,7 @@ class AuthorizeService {
     logger.info(JSON.stringify(createRequest.getJSON(), null, 2));
 
     const ctrl = new ApiControllers.CreateTransactionController(createRequest.getJSON());
-    const endpoint = config.authorize_prod_endpoint ? SDKConstants.endpoint.production : SDKConstants.endpoint.sandbox;
+    const endpoint = config.getConfig().authorize_prod_endpoint ? SDKConstants.endpoint.production : SDKConstants.endpoint.sandbox;
     ctrl.setEnvironment(endpoint);
     // Defaults to sandbox
     // ctrl.setEnvironment(SDKConstants.endpoint.production);
@@ -432,7 +432,7 @@ class AuthorizeService {
     logger.info(JSON.stringify(createRequest.getJSON(), null, 2));
 
     const ctrl = new ApiControllers.CreateTransactionController(createRequest.getJSON());
-    const endpoint = config.authorize_prod_endpoint ? SDKConstants.endpoint.production : SDKConstants.endpoint.sandbox;
+    const endpoint = config.getConfig().authorize_prod_endpoint ? SDKConstants.endpoint.production : SDKConstants.endpoint.sandbox;
     ctrl.setEnvironment(endpoint);
     // Defaults to sandbox
     // ctrl.setEnvironment(SDKConstants.endpoint.production);
@@ -543,7 +543,7 @@ class AuthorizeService {
     logger.info(JSON.stringify(createRequest.getJSON(), null, 2));
 
     const ctrl = new ApiControllers.CreateTransactionController(createRequest.getJSON());
-    const endpoint = config.authorize_prod_endpoint ? SDKConstants.endpoint.production : SDKConstants.endpoint.sandbox;
+    const endpoint = config.getConfig().authorize_prod_endpoint ? SDKConstants.endpoint.production : SDKConstants.endpoint.sandbox;
     ctrl.setEnvironment(endpoint);
     // Defaults to sandbox
     // ctrl.setEnvironment(SDKConstants.endpoint.production);
@@ -631,7 +631,7 @@ class AuthorizeService {
     createRequest.setMerchantAuthentication(merchantAuthenticationType);
 
     const ctrl = new ApiControllers.GetMerchantDetailsController(createRequest.getJSON());
-    const endpoint = config.authorize_prod_endpoint ? SDKConstants.endpoint.production : SDKConstants.endpoint.sandbox;
+    const endpoint = config.getConfig().authorize_prod_endpoint ? SDKConstants.endpoint.production : SDKConstants.endpoint.sandbox;
     ctrl.setEnvironment(endpoint);
     // Defaults to sandbox
     // ctrl.setEnvironment(SDKConstants.endpoint.production);

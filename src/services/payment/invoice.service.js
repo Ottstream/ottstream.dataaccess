@@ -20,7 +20,7 @@ const TransactionService = require('./transaction.service');
 // const { getOttTabs } = require('../../repository/ottprovider/ottprovider.repository');
 // const { clientRepository } = require('../../repository');
 // const { getOttProviderInvoiceByProviderId } = require('../../repository/ottprovider/ottprovider_invoice.repository');
-const config = require('../../config/config');
+const config = require('../../../config');
 const ShippingService = require('../shiping/shipping.service');
 // const priceUtils = require('../../utils/price')
 const {
@@ -122,7 +122,7 @@ class InvoiceService {
             // eslint-disable-next-line security/detect-non-literal-fs-filename
             const data = await fs.readFile(invoiceTemplatePath);
 
-            const savePath = `${config.file.file_storage_path}./${transactionId}_index.${jpeg ? 'png' : '.pdf'}`;
+            const savePath = `${config.getConfig().file.file_storage_path}./${transactionId}_index.${jpeg ? 'png' : '.pdf'}`;
 
             let html = data.toString();
             const transaction = await transactionRepository.getTransactionById(transactionId);
@@ -144,7 +144,7 @@ class InvoiceService {
             let logoPath = `https://media.istockphoto.com/vectors/road-icon-vector-id848192216?k=20&m=848192216&s=612x612&w=0&h=Bd-9wXbgeJHZ8lEnOYdcLXci0tpCpZqrm737zIwcMoI=`;
             if (ottProviderInvoice.length && ottProviderInvoice[0].design?.logo) {
               logoPath = `${
-                config.public_url ? config.public_url : `http://localhost:${config.port}`
+                config.getConfig().public_url ? config.getConfig().public_url : `http://localhost:${config.getConfig().port}`
               }/v1/files/icon/${ottProviderInvoice[0].design.logo.toString()}`;
             }
             // const name = provider.name.length ? provider.name[0].name : 'PROVIDER_COMPANY_NAME';
@@ -650,7 +650,7 @@ class InvoiceService {
 
     const merger = new PDFMerger();
 
-    const savePath = `${config.file.file_storage_path}./merged_index.pdf`;
+    const savePath = `${config.getConfig().file.file_storage_path}./merged_index.pdf`;
     await (async () => {
       results.forEach((pdfFile) => {
         merger.add(pdfFile);
@@ -685,7 +685,7 @@ class InvoiceService {
             // eslint-disable-next-line security/detect-non-literal-fs-filename
             const data = await fs.readFile(invoiceTemplatePath);
 
-            const savePath = `${config.file.file_storage_path}./${invoiceId}_index.${jpeg ? 'jpg' : '.pdf'}`;
+            const savePath = `${config.getConfig().file.file_storage_path}./${invoiceId}_index.${jpeg ? 'jpg' : '.pdf'}`;
 
             // Your string for the barcode
             let html = data.toString();
@@ -728,7 +728,7 @@ class InvoiceService {
               let logoPath = `https://media.istockphoto.com/vectors/road-icon-vector-id848192216?k=20&m=848192216&s=612x612&w=0&h=Bd-9wXbgeJHZ8lEnOYdcLXci0tpCpZqrm737zIwcMoI=`;
               if (ottProviderInvoice.length && ottProviderInvoice[0].design?.logo) {
                 logoPath = `${
-                  config.public_url ? config.public_url : `http://localhost:${config.port}`
+                  config.getConfig().public_url ? config.getConfig().public_url : `http://localhost:${config.getConfig().port}`
                 }/v1/files/icon/${ottProviderInvoice[0].design.logo.toString()}`;
               }
               const displayCut = invoice.type === 2 ? 'block' : 'none';
@@ -1228,7 +1228,7 @@ class InvoiceService {
 
     const merger = new PDFMerger();
 
-    const savePath = `${config.file.file_storage_path}./merged_index.pdf`;
+    const savePath = `${config.getConfig().file.file_storage_path}./merged_index.pdf`;
     await (async () => {
       results.forEach((pdfFile) => {
         merger.add(pdfFile);

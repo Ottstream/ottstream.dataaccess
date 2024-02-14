@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 const httpStatus = require('http-status');
-const config = require('../../config/config');
+const config = require('../../../config');
 const userService = require('./user.repository');
 const { Token } = require('../../models');
 const ApiError = require('../../api/utils/error/ApiError');
@@ -13,7 +13,7 @@ const ApiError = require('../../api/utils/error/ApiError');
  * @param {string} [secret]
  * @returns {string}
  */
-const generateToken = (userId, expires, secret = config.jwt.secret) => {
+const generateToken = (userId, expires, secret = config.getConfig().jwt.secret) => {
   const payload = {
     sub: userId,
     iat: moment().unix(),
@@ -63,7 +63,7 @@ const verifyEmailToken = async (userId, type) => {
  * @returns {Promise<Token>}
  */
 const verifyToken = async (token, type) => {
-  const payload = jwt.verify(token, config.jwt.secret);
+  const payload = jwt.verify(token, config.getConfig().jwt.secret);
   const tokenDoc = await Token.findOne({ token, type, user: payload.sub, blacklisted: false });
   if (!tokenDoc) {
     throw new Error('Token not found');
@@ -80,7 +80,7 @@ const generateResetPasswordToken = async (email) => {
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'No users found with this email');
   }
-  const expires = moment().add(config.jwt.resetPasswordExpirationMinutes, 'minutes');
+  const expires = moment().add(config.getConfig().jwt.resetPasswordExpirationMinutes, 'minutes');
   const resetPasswordToken = generateToken(user.id, expires);
   await saveToken(resetPasswordToken, user.id, expires, 'resetPassword');
   return resetPasswordToken;

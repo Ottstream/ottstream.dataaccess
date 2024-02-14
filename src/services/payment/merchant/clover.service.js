@@ -1,6 +1,6 @@
 const axios = require('axios');
 const logger = require('../../../utils/logger/logger');
-const config = require('../../../config/config');
+const config = require('../../../../config');
 const ottProviderEmailRepository = require('../../../repository/ottprovider/ottprovider_email.repository');
 
 class CloverService {
@@ -15,7 +15,7 @@ class CloverService {
       messages: [],
       list: [],
     };
-    const baseUrl = config.clover_prod
+    const baseUrl = config.getConfig().clover_prod
       ? 'https://scl.clover.com/v1/charges'
       : 'https://scl-sandbox.dev.clover.com/v1/charges';
     try {
@@ -40,7 +40,7 @@ class CloverService {
       status: false,
       messages: [],
     };
-    const baseUrl = config.clover_prod
+    const baseUrl = config.getConfig().clover_prod
       ? `https://api.clover.com/v3/merchants/${merchantId}`
       : `https://sandbox.dev.clover.com/v3/merchants/${merchantId}`;
     try {
@@ -68,7 +68,7 @@ class CloverService {
       status: false,
       messages: [],
     };
-    const baseUrl = config.clover_prod
+    const baseUrl = config.getConfig().clover_prod
       ? `https://api.clover.com/v3/merchants/${merchantId}/payments/${paymentuid}?expand=additionalCharges`
       : `https://sandbox.dev.clover.com/v3/merchants/${merchantId}/payments/${paymentuid}?expand=additionalCharges`;
 
@@ -109,7 +109,7 @@ class CloverService {
           Authorization: `Bearer ${secretKey}`,
           'Content-Type': 'application/json',
         };
-        const baseUrl = config.clover_prod
+        const baseUrl = config.getConfig().clover_prod
           ? 'https://api.clover.com/pakms/apikey'
           : 'https://apisandbox.dev.clover.com/pakms/apikey';
         const tokenResponse = await axios.get(baseUrl, {
@@ -138,7 +138,7 @@ class CloverService {
             address_zip: cardInfo.billingAddress.zip,
           },
         };
-        const cloverPath = config.clover_prod
+        const cloverPath = config.getConfig().clover_prod
           ? 'https://token.clover.com/v1/tokens'
           : 'https://token-sandbox.dev.clover.com/v1/tokens';
         const tokenizeResponse = await axios.post(cloverPath, cardData, {
@@ -161,7 +161,7 @@ class CloverService {
         capture: true,
         source: cardTokenId,
       };
-      const baseUrl = config.clover_prod
+      const baseUrl = config.getConfig().clover_prod
         ? 'https://scl.clover.com/v1/charges'
         : 'https://scl-sandbox.dev.clover.com/v1/charges';
       const chargeResponse = await axios.post(baseUrl, captureData, {
@@ -192,7 +192,7 @@ class CloverService {
         Authorization: `Bearer ${secretKey}`,
         'Content-Type': 'application/json',
       };
-      const baseUrl = config.clover_prod
+      const baseUrl = config.getConfig().clover_prod
         ? `https://api.clover.com/v3/merchants/${merchandId}/customers?limit=${options.limit}&expand=metadata,emailAddresses,phoneNumbers,cards`
         : `https://sandbox.dev.clover.com/v3/merchants/${merchandId}/customers?limit=${options.limit}&expand=metadata,emailAddresses,phoneNumbers,cards`;
 
@@ -222,7 +222,7 @@ class CloverService {
         Authorization: `Bearer ${secretKey}`,
         'Content-Type': 'application/json',
       };
-      const baseUrl = config.clover_prod
+      const baseUrl = config.getConfig().clover_prod
         ? `https://api.clover.com/v3/merchants/${merchandId}/customers/${filter.customerId}/cards/${filter.cardId}`
         : `https://sandbox.dev.clover.com/v3/merchants/${merchandId}/customers/${filter.customerId}/cards/${filter.cardId}`;
       const getResponse = await axios.delete(baseUrl, {
@@ -252,7 +252,7 @@ class CloverService {
         Authorization: `Bearer ${secretKey}`,
         'Content-Type': 'application/json',
       };
-      const baseUrl = config.clover_prod
+      const baseUrl = config.getConfig().clover_prod
         ? `https://api.clover.com/v3/merchants/${merchandId}/customers?limit=${options.limit}&expand=metadata,emailAddresses,phoneNumbers,cards&filter=${filter.search}`
         : `https://sandbox.dev.clover.com/v3/merchants/${merchandId}/customers?limit=${options.limit}&expand=metadata,emailAddresses,phoneNumbers,cards&filter=${filter.search}`;
       const getResponse = await axios.get(baseUrl, {
@@ -292,7 +292,7 @@ class CloverService {
         Authorization: `Bearer ${secretKey}`,
         'Content-Type': 'application/json',
       };
-      const baseUrl = config.clover_prod
+      const baseUrl = config.getConfig().clover_prod
         ? 'https://api.clover.com/pakms/apikey'
         : 'https://apisandbox.dev.clover.com/pakms/apikey';
       const tokenResponse = await axios.get(baseUrl, {
@@ -322,7 +322,7 @@ class CloverService {
         },
       };
       const last4 = cardInfo.cardNumber.slice(-4);
-      const cloverPath = config.clover_prod
+      const cloverPath = config.getConfig().clover_prod
         ? 'https://token.clover.com/v1/tokens'
         : 'https://token-sandbox.dev.clover.com/v1/tokens';
       const tokenizeResponse = await axios.post(cloverPath, cardData, {
@@ -370,7 +370,7 @@ class CloverService {
         const cardId = sameNumberCustomers.cards?.elements?.filter((r) => r.last4 === last4)[0];
         if (cardId) {
           try {
-            const delCardUrl = config.clover_prod
+            const delCardUrl = config.getConfig().clover_prod
               ? `https://api.clover.com/v3/merchants/${merchandId}/customers/${sameNumberCustomer.id}/cards/${cardId.id}`
               : `https://sandbox.dev.clover.com/v3/merchants/${merchandId}/customers/${sameNumberCustomer.id}/cards/${cardId.id}`;
             // eslint-disable-next-line no-await-in-loop
@@ -398,7 +398,7 @@ class CloverService {
             },
           ],
         };
-        const addCustomerUrl = config.clover_prod
+        const addCustomerUrl = config.getConfig().clover_prod
           ? `https://api.clover.com/v3/merchants/${merchandId}/customers`
           : `https://sandbox.dev.clover.com/v3/merchants/${merchandId}/customers`;
         const createResponse = await axios.post(addCustomerUrl, createData, {
@@ -412,7 +412,7 @@ class CloverService {
       }
 
       try {
-        const changeCustomerUrl = config.clover_prod
+        const changeCustomerUrl = config.getConfig().clover_prod
           ? `https://scl.clover.com/v1/customers/${remoteCustomer.id}`
           : `https://scl-sandbox.dev.clover.com/v1/customers/${remoteCustomer.id}`;
         await axios.put(
@@ -441,7 +441,7 @@ class CloverService {
             lastName: cardInfo.billingAddress.lastname,
           };
 
-          const addCardUrl = config.clover_prod
+          const addCardUrl = config.getConfig().clover_prod
             ? `https://api.clover.com/v3/merchants/${merchandId}/customers/${remoteCustomer.id}/cards`
             : `https://sandbox.dev.clover.com/v3/merchants/${merchandId}/customers/${remoteCustomer.id}/cards`;
           await axios.post(addCardUrl, createCard, {
@@ -480,7 +480,7 @@ class CloverService {
       status: false,
       messages: [],
     };
-    const baseUrl = config.clover_prod
+    const baseUrl = config.getConfig().clover_prod
       ? `https://scl.clover.com/v1/refunds`
       : `https://scl-sandbox.dev.clover.com/v1/refunds`;
 

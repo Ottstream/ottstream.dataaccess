@@ -6,7 +6,7 @@ const telegramBotRepository = require('../../repository/telegram_bot/telegram_bo
 const userRepository = require('../../repository/user/user.repository');
 const ottProviderConversationProvider = require('../../repository/ottprovider/ottprovider_conversation_provider.repository');
 const calendarRepository = require('../../repository/calendar/calendar_event.repository');
-const config = require('../../config/config');
+const config = require('../../../config');
 
 class TelegramBotService {
   constructor() {
@@ -685,7 +685,7 @@ Comments: ${comments}
       return;
     }
     // Create a bot that uses 'polling' to fetch new updates
-    const bot = new TelegramBot(token, { polling: config.telegram.polling });
+    const bot = new TelegramBot(token, { polling: config.getConfig().telegram.polling });
     // bot.setChatPermissions(chatId, {
     //   can_send_messages
     // })
@@ -699,9 +699,9 @@ Comments: ${comments}
       language: 'en',
     });
 
-    if (!config.telegram.polling) {
+    if (!config.getConfig().telegram.polling) {
       // This informs Telegram where to send updates
-      bot.setWebHook(`${config.telegram.webhookurl}?token=${token}`);
+      bot.setWebHook(`${config.getConfig().telegram.webhookurl}?token=${token}`);
     } else {
       bot.onText(/\/\w+|\w+/, async (message) => {
         await this.processTelegramWebhook({
@@ -725,7 +725,7 @@ Comments: ${comments}
       calendar,
     };
     logger.info(
-      `telegra bot: bot ${provider}-${token} is running (polling: ${config.telegram.polling}, wehookurl: ${config.telegram.webhookurl})...`
+      `telegra bot: bot ${provider}-${token} is running (polling: ${config.getConfig().telegram.polling}, wehookurl: ${config.getConfig().telegram.webhookurl})...`
     );
   }
 }

@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 const axios = require('axios');
 const { uuid } = require('uuidv4');
-const config = require('../../../config/config');
+const config = require('../../../../config');
 const logger = require('../../../utils/logger/logger');
 const ottProviderEmailRepository = require('../../../repository/ottprovider/ottprovider_email.repository');
 
@@ -11,7 +11,7 @@ class SquareService {
   }
 
   static async validateKey(secretKey, applicationId) {
-    const squareUrl = config.square_prod ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
+    const squareUrl = config.getConfig().square_prod ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
     const response = {
       status: false,
       messages: [],
@@ -65,7 +65,7 @@ class SquareService {
       if (cardInfo.squareId) {
         captureData.customer_id = cardInfo.squareId;
       }
-      const squareUrl = config.square_prod ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
+      const squareUrl = config.getConfig().square_prod ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
       const chargeResponse = await axios.post(`${squareUrl}/v2/payments`, captureData, {
         headers,
       });
@@ -153,7 +153,7 @@ class SquareService {
         Authorization: `Bearer ${secretKey}`,
         'Content-Type': 'application/json',
       };
-      const squareUrl = config.square_prod ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
+      const squareUrl = config.getConfig().square_prod ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
       const getResponse = await axios.post(
         `${squareUrl}/v2/customers/search`,
         {
@@ -242,7 +242,7 @@ class SquareService {
           reference_id: client.id,
           family_name: `${cardInfo.billingAddress.firstname} ${cardInfo.billingAddress.lastname}`,
         };
-        const squareUrl = config.square_prod ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
+        const squareUrl = config.getConfig().square_prod ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
         const createResponse = await axios.post(`${squareUrl}/v2/customers`, createData, {
           headers,
         });
@@ -254,7 +254,7 @@ class SquareService {
       }
 
       try {
-        const squareUrl = config.square_prod ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
+        const squareUrl = config.getConfig().square_prod ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
         const createdCard = await axios.post(
           `${squareUrl}/v2/cards`,
           {

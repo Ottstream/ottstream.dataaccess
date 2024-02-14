@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const config = require('../../config/config');
+const config = require('../../../config');
 // const config = conf.Config.myConfig
 const logger = require('../../utils/logger/logger');
 const ottProviderEmailRepository = require('../../repository/ottprovider/ottprovider_email.repository');
@@ -209,7 +209,7 @@ const transport = nodemailer.createTransport({
     user: config?.email?.smtp?.auth?.user,
     pass: config?.email?.smtp?.auth?.pass,
   },
-}); // TODO if works on production normal move to configs: config.email.smtp Object file
+}); // TODO if works on production normal move to configs: config.getConfig().email.smtp Object file
 
 /* istanbul ignore next */
 if (config?.env !== 'test') {
@@ -507,7 +507,7 @@ href='${frontUrl}/auth/password-change?token=${token}'
 
   static async sendEmail(to, subject, html, customConfig) {
     // eslint-disable-next-line no-unused-vars
-    const msg = { from: config.email.smtp.auth.user, to, subject, html };
+    const msg = { from: config.getConfig().email.smtp.auth.user, to, subject, html };
     try {
       let customTransport = null;
       if (customConfig) {
@@ -527,7 +527,7 @@ href='${frontUrl}/auth/password-change?token=${token}'
         //     user: customConfig.username,
         //     pass: customConfig.password,
         //   },
-        // }); // TODO if works on production normal move to configs: config.email.smtp Object file
+        // }); // TODO if works on production normal move to configs: config.getConfig().email.smtp Object file
 
         const customSmtpConfig = {
           host: customConfig.server, // Replace with your SMTP server host
@@ -585,7 +585,7 @@ href='${frontUrl}/auth/password-change?token=${token}'
 
   static async sendResetPasswordEmail(to, token, name, customConfig) {
     const subject = 'Reset password';
-    const html = EmailService.resetPasswordHtml(name, config.front_url, token);
+    const html = EmailService.resetPasswordHtml(name, config.getConfig().front_url, token);
     await EmailService.sendEmail(to, subject, html, customConfig);
   }
 
@@ -612,7 +612,7 @@ href='${frontUrl}/auth/password-change?token=${token}'
 
   static async sendEmailResetPasswordToken(to, name, token, customConfig) {
     const subject = 'Ott provider reset password';
-    const html = EmailService.emailResetPasswordHtml(name, config.front_url, token);
+    const html = EmailService.emailResetPasswordHtml(name, config.getConfig().front_url, token);
     await EmailService.sendEmail(to, subject, html, customConfig);
   }
 
@@ -627,7 +627,7 @@ href='${frontUrl}/auth/password-change?token=${token}'
   static async sendRegistrationApproveEmail(to, name, customConfig) {
     const subject = 'Ott provider registration';
     const temp = registrationApproveHtml.replace('Name', name);
-    const html = temp.replace('BASE_URL', config.front_url);
+    const html = temp.replace('BASE_URL', config.getConfig().front_url);
 
     await EmailService.sendEmail(to, subject, html, customConfig);
   }

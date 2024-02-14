@@ -4,7 +4,7 @@ const path = require('path');
 const { File } = require('../../models');
 const ApiError = require('../../api/utils/error/ApiError');
 const langPick = require('../../utils/helpers/langPick');
-const config = require('../../config/config');
+const config = require('../../../config');
 const { resizeImage } = require('../../utils/image_processing/sharp_helper');
 
 /**
@@ -86,7 +86,7 @@ const getChannelIcon = async (params, options = {}) => {
   const extension = fileNameSplit[1];
   const dimension = params.width;
   const folderPath = path.join(
-    config.file.file_storage_path,
+    config.getConfig().file.file_storage_path,
     'channels',
     channelNumber,
     params.setId.toString(),

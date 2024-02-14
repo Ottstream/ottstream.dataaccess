@@ -1,5 +1,5 @@
 const Taxjar = require('taxjar');
-const config = require('../../../config/config');
+const config = require('../../../../config');
 const logger = require('../../../utils/logger/logger');
 
 class TaxjarService {
@@ -7,7 +7,7 @@ class TaxjarService {
     logger.info(`TaxjarService() initiated`);
 
     this.taxJarClient = new Taxjar({
-      apiKey: config.taxJar.token,
+      apiKey: config.getConfig().taxJar.token,
     });
   }
 
