@@ -87,3 +87,4 @@ module.exports.Chat = require('./chat/chat.model');
 module.exports.Sms = require('./sms/sms.model');
 module.exports.Help = require('./help/help.model');
 module.exports.TelegramBot = require('./telegram_bot/telegram_bot.model');
+module.exports.BotMessages = require('./telegram_bot/bot_messages.model');
