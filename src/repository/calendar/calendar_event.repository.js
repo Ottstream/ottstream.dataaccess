@@ -59,30 +59,12 @@ const getCalendarEventByEqInstaller = async (EqInstaller, filter) => {
     // Get the current offset in minutes
     const offsetInMinutes = moment.tz(timezoneString).utcOffset();
 
-    // Convert offset to hours and minutes
-    const offsetHours = Math.floor(offsetInMinutes / 60);
-    filter.startDate = new Date(filter.startDate);
-    filter.startDate.setHours(0, 0, 0);
+    const startDay = moment(filter.startDate, 'YYYY-MM-DDTHH:mm:ssZ').startOf('day').add(offsetInMinutes, 'minutes');
+    const endDate = moment(filter.startDate, 'YYYY-MM-DDTHH:mm:ssZ').endOf('day').add(offsetInMinutes, 'minutes');
 
-    // Get the time zone offset in minutes
-    let timeZoneOffsetInMinutes = moment(filter.startDate).utcOffset();
+    filter.startDate = startDay.format();
+    filter.endDate = endDate.format();
 
-    // Convert the offset to hours
-    let timeZoneOffsetInHours = timeZoneOffsetInMinutes / 60;
-
-    // Add the offset hours to the date
-    filter.startDate.setHours(filter.startDate.getHours() + timeZoneOffsetInHours - offsetHours);
-    filter.endDate = new Date(filter.startDate);
-    filter.endDate.setHours(23, 59, 59);
-
-    // Get the time zone offset in minutes
-    timeZoneOffsetInMinutes = moment(filter.endDate).utcOffset();
-
-    // Convert the offset to hours
-    timeZoneOffsetInHours = timeZoneOffsetInMinutes / 60;
-
-    // Add the offset hours to the date
-    filter.endDate.setHours(filter.endDate.getHours() + timeZoneOffsetInHours - offsetHours);
     calendarFilter.$and.push({
       startDate: {
         $gte: filter.startDate,
