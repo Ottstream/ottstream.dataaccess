@@ -77,10 +77,8 @@ const serviceCollection = new ServiceCollection();
 
 const TimezoneService = require('./shared/timezone.service');
 const RedisCache = require('./cache/RedisCache');
-const TelegramBotService = require('./telegram/telegram_bot.service');
 
 serviceCollection.addTransient('timezoneService', TimezoneService, {});
 serviceCollection.addSingleton('redisCacheStore', RedisCache, { connect: true });
-serviceCollection.addSingleton('telegramBotService', TelegramBotService, {});
 
 module.exports = serviceCollection;
