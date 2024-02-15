@@ -800,25 +800,23 @@ const findDifferentAndUpdateUser = async (req) => {
         newUser.rolesInfo.equipmentInstaller !== oldUser.rolesInfo.equipmentInstaller) ||
       (newUser.rolesInfo.equipmentInstaller && data.accessEnable === false)
     ) {
-      const eventBusService = new EventBusService({ connect: true });
-      if (!eventBusService.isConnected) await eventBusService.connect();
-
       const provider = await getOttProviderConversationProviderByProviderId(newUser.provider._id);
       const contentType = req.get('Content-Type');
       logger.info(
         `webhookcontroller:telegram() time: ${new Date().getTime()} ms ${contentType} ${JSON.stringify(req.body)}`
       );
-
-      await eventBusService.send('telegram-bot', {
-        body: {
-          newUser,
-          provider,
-          disable: true,
-        },
-      });
+      return {
+        newUser,
+        provider,
+        disable: true,
+      }
     }
   }
-  return newUser;
+  return {
+    newUser,
+    provider,
+    disable: false,
+  };
 };
 
 module.exports = {
