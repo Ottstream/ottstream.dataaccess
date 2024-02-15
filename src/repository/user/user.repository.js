@@ -13,7 +13,6 @@ const tokenService = require('./token.repository');
 const roleService = require('../role/role.repository');
 const Token = require('../../models/user/token.model');
 // const serviceCollection = require('../../services/service_collection');
-const EventBusService = require('../../services/event_bus/eventbusService.service');
 const {
   getOttProviderConversationProviderByProviderId,
 } = require('../ottprovider/ottprovider_conversation_provider.repository');
