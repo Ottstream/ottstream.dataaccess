@@ -5,6 +5,7 @@ const { User, Client } = require('../../models');
 const { CalendarEvent } = require('../../models');
 const ApiError = require('../../api/utils/error/ApiError');
 const { updateSubDocument } = require('../../utils/repository/subdocument_update');
+const logger = require('../../utils/logger/logger');
 
 // eslint-disable-next-line no-unused-vars
 const calendarEventPopulateObject = [
@@ -89,10 +90,16 @@ const getCalendarEventByEqInstaller = async (EqInstaller, filter) => {
       },
     });
   }
+  logger.info(`getCalendarEventByEqInstaller:  ${JSON.stringify({
+    equipmentInstaller: EqInstaller._id,
+    ...calendarFilter,
+  })}`)
   const items = await CalendarEvent.find({
     equipmentInstaller: EqInstaller._id,
     ...calendarFilter,
   }).sort({ startDate: 1 });
+
+  logger.info(`items:  ${JSON.stringify(items)}`)
   return items;
 };
 
