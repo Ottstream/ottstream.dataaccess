@@ -1,5 +1,6 @@
 // const { Config } = require('./src/config/config');
 const config = require('./config');
+const DbSetup = require('./setup')
 
 // async function connect(MongoUrl) { 
 //     const mongoose = require('mongoose');
@@ -36,5 +37,6 @@ const config = require('./config');
         module.exports = {
             repositories,
             models,
-            config
+            config,
+            DbSetup
         }

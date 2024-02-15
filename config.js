@@ -204,7 +204,6 @@ class Config {
     getConfig() {
         return this.configObject;
     }
-    
 }
 
 const config = new Config()
