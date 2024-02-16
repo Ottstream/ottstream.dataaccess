@@ -59,11 +59,11 @@ const getCalendarEventByEqInstaller = async (EqInstaller, filter) => {
     // Get the current offset in minutes
     const offsetInMinutes = moment.tz(timezoneString).utcOffset();
 
-    const startDay = moment(filter.startDate, 'YYYY-MM-DDTHH:mm:ssZ').startOf('day').add(offsetInMinutes, 'minutes');
-    const endDate = moment(filter.startDate, 'YYYY-MM-DDTHH:mm:ssZ').endOf('day').add(offsetInMinutes, 'minutes');
+    const startDay = moment.utc(filter.startDate, 'YYYY-MM-DDTHH:mm:ss').startOf('day').add(-offsetInMinutes, 'minutes');
+    const endDate = moment.utc(filter.startDate, 'YYYY-MM-DDTHH:mm:ss').endOf('day').add(-offsetInMinutes, 'minutes');
 
-    filter.startDate = startDay.format();
-    filter.endDate = endDate.format();
+    filter.startDate = startDay.format('YYYY-MM-DDTHH:mm:ssZ');
+    filter.endDate = endDate.format('YYYY-MM-DDTHH:mm:ssZ');
 
     calendarFilter.$and.push({
       startDate: {
@@ -72,16 +72,11 @@ const getCalendarEventByEqInstaller = async (EqInstaller, filter) => {
       },
     });
   }
-  logger.info(`getCalendarEventByEqInstaller:  ${JSON.stringify({
-    equipmentInstaller: EqInstaller._id,
-    ...calendarFilter,
-  })}`)
   const items = await CalendarEvent.find({
     equipmentInstaller: EqInstaller._id,
     ...calendarFilter,
   }).sort({ startDate: 1 });
 
-  logger.info(`items:  ${JSON.stringify(items)}`)
   return items;
 };
 
