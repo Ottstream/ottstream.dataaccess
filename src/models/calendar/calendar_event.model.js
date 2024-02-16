@@ -23,6 +23,7 @@ const calendarEvent = mongoose.Schema(
     endDate: { type: Date },
     paymentType: { type: String },
     paymentPrice: { type: Number },
+    paymentPaid: { type: Number },
     customerAddress: { type: Object },
     officeAddress: { type: Object },
     description: { type: Schema.Types.String },
