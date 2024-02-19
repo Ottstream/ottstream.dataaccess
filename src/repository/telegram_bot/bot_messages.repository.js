@@ -40,10 +40,8 @@ const getBotMessageById = async (id) => {
  * @returns {Promise<BotMessages>}
  * @param chatId
  */
-const getBotMessageByChatId = async (chatId) => {
-  const message = await BotMessages.findOne({
-    chatId,
-  });
+const getBotMessageByChatId = async (filter) => {
+  const message = await BotMessages.findOne(filter);
   return message;
 };
 
