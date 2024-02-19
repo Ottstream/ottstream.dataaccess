@@ -82,13 +82,18 @@ class Config {
             SQUARE_PROD: Joi.bool().description('square prod or sandbox').default(false),
             AUTHORIZE_ENDPOINT: Joi.bool().description('authorize prod or sandbox').default(false),
             CLOVER_PROD: Joi.bool().description('clover prod or sandbox').default(false),
+            PG_HOST: Joi.string().description('Pg host'),
+            PG_PORT: Joi.number().description('Pg db connection port'),
+            PG_DB: Joi.string().description('Pg db name'),
+            PG_USER: Joi.string().description('Pg user'),
+            PG_PASSWORD: Joi.string().description('Pg user password')
         })
         .unknown();
 
         const { value: envVars, error } = envVarsSchema.prefs({ errors: { label: 'key' } }).validate(process.env);
 
         if (error) {
-        throw new Error(`Config validation error: ${error.message}`);
+            throw new Error(`Config validation error: ${error.message}`);
         }
 
         this.configObject = {
@@ -108,6 +113,13 @@ class Config {
                 options: {
                 minPoolSize: 90,
                 },
+            },
+            pg: {
+                port: envVars.PG_PORT || 5432,
+                host: envVars.PG_HOST || '127.0.0.1',
+                user: envVars.PG_USER || 'admin',
+                password: envVars.PG_PASSWORD || '1111',
+                db: envVars.PG_DB || 'ottstream_chat'
             },
             jwt: {
                 secret: envVars.JWT_SECRET,

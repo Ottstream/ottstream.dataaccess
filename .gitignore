@@ -1,6 +1,9 @@
 # Dependencies
 node_modules
 
+# testing
+test
+
 # package-lock.json (use yarn.lock instead)
 package-lock.json
 
@@ -16,5 +19,5 @@ coverage
 
 # project files
 .idea
-
+.vscode
 storage
