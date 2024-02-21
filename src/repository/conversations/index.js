@@ -1,44 +1,63 @@
-const db = require('../../../db.pg')
-const dbConstants = require('../../constants/db.config')
+const db = require("../../../db.pg");
+const dbConstants = require("../../constants/db.config");
 
-class ConversationRepo {
-    get #table() {
-        return db.table(dbConstants.tables.conversations)
-    }
-    #result = (data, error) => ({ error, data })
+const table = db.table(dbConstants.tables.conversations);
+const result = (data, error) => ({ error, data });
 
-    async create(body) {
-        if (!body.name) return this.#result(null, 'missing name')
-        if (!body.type) return this.#result(null, 'missing type')
-        if (!body.provider) return this.#result(null, 'missing provider')
-        if (!Array.isArray(body.members) || !body.members.length) return this.#result(null, 'members must be array and required has min 1 member')
-        body.members = JSON.stringify(body.members)
-        return await this.#table.insert(body).returning('*')
-    }
+const create = async (body) => {
+  if (!body.name) return result(null, "missing name");
+  if (!body.type) return result(null, "missing type");
+  if (!body.provider) return result(null, "missing provider");
+  if (!Array.isArray(body.members) || !body.members.length)
+    return result(null, "members must be array and required has min 1 member");
+  body.members = JSON.stringify(body.members);
+  return await db.table(dbConstants.tables.conversations).insert(body).returning("*");
+};
 
-    async getList(filter, limit = 10, page = 1) {
-        const list = await this.#table
-            .select()
-            .where({ ...filter, deleted: 0 })
-            .limit(limit)
-            .offset((page - 1) * limit)
-        return this.#result(list)
-    }
+const getConversation = async (ids) => {
+  const conversation = await db.table(dbConstants.tables.conversations)
+    .select()
+    .whereRaw(`members @> '${ids}'::jsonb`)
+    .where({ deleted: 0 })[0];
+  return result(conversation);
+};
 
-    async delete (id) {
-        const deletedList = await this.#table
-            .where({ id })
-            .update({ deleted: 1, deleted_at: new Date() })
-        return this.#result(deletedList)
-    }
+const getUsersList = async (ids, limit = 10, page = 1) => {
+  const list = await db.table(dbConstants.tables.conversations)
+    .select()
+    .whereRaw(`members @> '${ids}'::jsonb`)
+    .where({ deleted: 0 })
+    .limit(limit)
+    .offset((page - 1) * limit);
+  return result(list);
+};
 
-    async update (id, body) {
-        const updatedList = await this.#table
-            .where({ id })
-            .update(body)
-        return this.#result(updatedList)
-    }
+const getList = async (filter, limit = 10, page = 1) => {
+  const list = await db.table(dbConstants.tables.conversations)
+    .select()
+    .where({ ...filter, deleted: 0 })
+    .limit(limit)
+    .offset((page - 1) * limit);
+  return result(list);
+};
 
-}
+const deleteConversation = async (id) => {
+  const deletedList = await db.table(dbConstants.tables.conversations)
+    .where({ id })
+    .update({ deleted: 1, deleted_at: new Date() });
+  return result(deletedList);
+};
 
-module.exports = new ConversationRepo()
+const update = async (id, body) => {
+  const updatedList = await db.table(dbConstants.tables.conversations).where({ id }).update(body);
+  return result(updatedList);
+};
+
+module.exports = {
+  create,
+  getConversation,
+  getUsersList,
+  getList,
+  deleteConversation,
+  update,
+};

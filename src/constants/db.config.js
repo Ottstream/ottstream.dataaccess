@@ -1,7 +1,8 @@
 const tables = {
     conversations: 'conversations',
     messages: 'messages',
-    participants: 'participants'
+    participants: 'participants',
+    chatMembers: 'chat_members'
 }
 
 module.exports = {
