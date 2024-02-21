@@ -799,21 +799,20 @@ const findDifferentAndUpdateUser = async (req) => {
         newUser.rolesInfo.equipmentInstaller !== oldUser.rolesInfo.equipmentInstaller) ||
       (newUser.rolesInfo.equipmentInstaller && data.accessEnable === false)
     ) {
-      const provider = await getOttProviderConversationProviderByProviderId(newUser.provider._id);
+      const conversationProvider = await getOttProviderConversationProviderByProviderId(newUser.provider._id);
       const contentType = req.get('Content-Type');
       logger.info(
         `webhookcontroller:telegram() time: ${new Date().getTime()} ms ${contentType} ${JSON.stringify(req.body)}`
       );
       return {
         newUser,
-        provider,
+        provider: conversationProvider,
         disable: true,
       }
     }
   }
   return {
     newUser,
-    provider,
     disable: false,
   };
 };

@@ -6,6 +6,10 @@ const { CalendarEvent } = require('../../models');
 const ApiError = require('../../api/utils/error/ApiError');
 const { updateSubDocument } = require('../../utils/repository/subdocument_update');
 const logger = require('../../utils/logger/logger');
+const {
+  getOttProviderConversationProviderByProviderId,
+} = require('../ottprovider/ottprovider_conversation_provider.repository');
+
 
 // eslint-disable-next-line no-unused-vars
 const calendarEventPopulateObject = [
@@ -108,7 +112,12 @@ const createCalendarEvent = async (itemBody, user) => {
   body.user = user._id;
   body.provider = user.provider.id;
   const created = await CalendarEvent.create(body);
-  return getCalendarEventById(created.id);
+  const calendarEvent = await getCalendarEventById(created.id);
+  const conversationProvider = await getOttProviderConversationProviderByProviderId(calendarEvent.equipmentInstaller.provider);
+  return {
+    calendarEvent,
+    conversationProvider
+  }
 };
 
 /**
