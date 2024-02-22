@@ -320,8 +320,10 @@ const queryCalendarEvents = async (filter, options, user) => {
  * @returns {Promise<CalendarEvent>}
  */
 const updateCalendarEventById = async (calendarEventId, updateBody) => {
-  const item = await getCalendarEventById(calendarEventId);
-
+  const [item, oldEvent] = await Promise.all([
+    getCalendarEventById(calendarEventId),
+    getCalendarEventById(calendarEventId),
+  ]) ;
   if (updateBody.comments) {
     item.comments = updateSubDocument(item, 'comments', updateBody, 'comments');
     // eslint-disable-next-line no-param-reassign
@@ -332,7 +334,10 @@ const updateCalendarEventById = async (calendarEventId, updateBody) => {
   }
   Object.assign(item, updateBody);
   await item.save();
-  return getCalendarEventById(calendarEventId);
+  return {
+    oldEvent,
+    newEvent: await getCalendarEventById(calendarEventId)
+  };
 };
 
 const updateCalendarEventByIdNew = async (calendarEventId, updateBody) => {
