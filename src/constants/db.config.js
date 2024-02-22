@@ -11,6 +11,7 @@ const tables = {
     client_locations: 'client_locations',
     providers: 'providers',
     transactions: 'transactions',
+    files: 'files',
 }
 
 module.exports = {
