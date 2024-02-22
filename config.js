@@ -14,7 +14,7 @@ class Config {
     initConfig() {
         const envVarsSchema = Joi.object()
         .keys({
-            NODE_ENV: Joi.string().valid('production', 'development', 'test').required(),
+            NODE_ENV: Joi.string().valid('production', 'development', 'test').default('development'),
             PUBLIC_URL: Joi.string().default(null),
             SYNC_MIDDLEWARE: Joi.boolean().default(false),
             SYNC_GENERATE_LOGIN: Joi.boolean().default(true),
@@ -28,16 +28,15 @@ class Config {
             SYNC_URL: Joi.string().default('https://ott/api/OttProvider'),
             SYNC_PROVIDER_PULL_TIME: Joi.number().default(30),
             TAXJAR_API_TOKEN: Joi.string().default('e5437df7aef675ecb405bdfeeebdfb3f'),
-            FRONT_URL: Joi.string().required().description('front url'),
+            FRONT_URL: Joi.string().description('front url'),
             SMARTSTREET_SOURCE_URL: Joi.string()
-            .required()
             .description('fsmartstreet validation source url')
             .default('http://localhost:5020'),
-            MONGODB_URL: Joi.string().required().description('Mongo DB url'),
-            FILE_STORAGE_PATH: Joi.string().required().description('File Storage full path'),
+            MONGODB_URL: Joi.string().description('Mongo DB url'),
+            FILE_STORAGE_PATH: Joi.string().description('File Storage full path'),
             STORAGE_ROOT_PATH: Joi.string().description('File Storage root path').default('./'),
             TEMPLATE_PATH: Joi.string().description('template_path').default('../../'),
-            JWT_SECRET: Joi.string().required().description('JWT secret key'),
+            JWT_SECRET: Joi.string().description('JWT secret key'),
             JWT_ACCESS_EXPIRATION_MINUTES: Joi.number().default(1).description('minutes after which access tokens expire'),
             JWT_REFRESH_EXPIRATION_DAYS: Joi.number().default(30).description('days after which refresh tokens expire'),
             SMTP_FULL: Joi.string().description('nodemail connection string'),

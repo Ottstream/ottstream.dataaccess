@@ -1,7 +1,7 @@
 const httpStatus = require('http-status');
 const mongoose = require('mongoose');
 const { ClientBill } = require('../../models');
-const { clientRepository } = require('..');
+const { clientRepository } = require('../index_v1');
 const ApiError = require('../../api/utils/error/ApiError');
 const priceUtils = require('../../utils/price/price_utils');
 const logger = require('../../utils/logger/logger');

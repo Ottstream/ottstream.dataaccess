@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "nodemon ./test/index.js",
-    "dev": "node ./test/index.js"
+    "dev": "node ./test/index.js",
+    "migrate": "node ./test/migrate.js"
   },
   "keywords": [],
   "author": "",
