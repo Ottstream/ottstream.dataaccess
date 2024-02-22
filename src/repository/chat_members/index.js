@@ -14,8 +14,8 @@ const findByUserId = async (id) => {
     .where(function () {
       this.where("client_id", id).orWhere("user_id", id);
     })
-    .select("*")[0];
-  return result(member);
+    .select("*");
+  return result(member[0]);
 };
 
 const getMemberByIdOrClientId = async (id) => {
@@ -29,24 +29,24 @@ const getMemberByIdOrClientId = async (id) => {
 
 const find = async (search) => {
   const members = await db.table(dbConstants.tables.chatMembers)
-    .where(function () {
-      this.whereRaw(`phones @> '${search}'::jsonb`).orWhere(
-        "name",
-        "LIKE",
-        `%${search}%`
-      );
-    })
-    .select("*");
+  .where(function () {
+    this.whereRaw(`exists (select 1 from jsonb_array_elements(phones) as elem where elem->>'phoneNumber' like ?)`, [`%${search}%`]).orWhere(
+      "name",
+      "ILIKE",
+      `%${search}%`
+    );
+  })
+  .select("*");
   return result(members);
 };
 
 const registerUserMember = async (user) => {
-  let member = await db.table(dbConstants.tables.chatMembers).where({ user_id: user._id }).returning("id")[0];
-  if (!member) {
+  let member = await db.table(dbConstants.tables.chatMembers).where({ user_id: user._id.toString() }).returning("*");
+  if (!member.length) {
     member = await db.table(dbConstants.tables.chatMembers)
       .insert({
-        user_id: user._id,
-        provider: user.provider.name,
+        user_id: user._id.toString(),
+        provider: user.provider.name[0].name,
         avatar: user.avatar,
         name: user.firstname + " " + user.lastname,
         phones: JSON.stringify([user.phone]),
@@ -70,8 +70,8 @@ const registerMember = async (chatMember) => {
 };
 
 const findById = async (id) => {
-  const member = await db.table(dbConstants.tables.chatMembers).where({ id }).select("*")[0];
-  return result(member);
+  const member = await db.table(dbConstants.tables.chatMembers).where({ id }).select("*");
+  return result(member[0]);
 };
 
 const getList = async (filter, limit = 10, page = 1) => {
