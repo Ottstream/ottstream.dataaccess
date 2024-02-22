@@ -6,7 +6,7 @@ const result = (data, error) => ({ error, data });
 
 const create = async (body) => {
   const member = await db.table(dbConstants.tables.chatMembers).insert(body).returning("*");
-  return result(member);
+  return result(member[0]);
 };
 
 const findByUserId = async (id) => {
@@ -18,13 +18,21 @@ const findByUserId = async (id) => {
   return result(member[0]);
 };
 
+const getMemberByClientId = async (id) => {
+  const member = await db
+    .table(dbConstants.tables.chatMembers)
+    .where({ id })
+    .select('*')
+  return result(member[0]);
+}
+
 const getMemberByIdOrClientId = async (id) => {
   const member = await db.table(dbConstants.tables.chatMembers)
     .where(function () {
       this.where("id", id).orWhere("client_id", id);
     })
-    .select("*")[0];
-  return result(member);
+    .select("*");
+  return result(member[0]);
 };
 
 const find = async (search) => {
@@ -91,5 +99,6 @@ module.exports = {
   registerUserMember,
   registerMember,
   findById,
+  getMemberByClientId,
   getList,
 };

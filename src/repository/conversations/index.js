@@ -36,6 +36,21 @@ const getConversation = async (member, target) => {
   return result(conversation[0]);
 };
 
+const registerClientConversation = async (id, body) => {
+    let conversation = await db
+      .table(dbConstants.tables.conversations)
+      .whereRaw(`members @> '${JSON.stringify([id])}'::jsonb`)
+      .select('*')
+    
+    if (!conversation.length) {
+      conversation = await db
+        .table(dbConstants.tables.conversations)
+        .insert(body)
+        .returning('*')
+    }
+    return conversation[0]
+}
+
 const getUsersList = async (ids, limit = 10, page = 1) => {
   const list = await db
     .table(dbConstants.tables.conversations)
@@ -66,6 +81,17 @@ const deleteConversation = async (id) => {
   return result(deletedList);
 };
 
+const getById = async (id) => {
+  const conversation = await db
+    .table(dbConstants.tables.conversations)
+    .where({ id })
+    .select('*')
+    .leftJoin('chat_members', function() {
+      this.on('chat_members.id', 'in', knex.raw('jsonb_array_elements_text(conversations.members)::integer'));
+    })
+  return conversation[0]
+}
+
 const update = async (id, body) => {
   const updatedList = await db.table(dbConstants.tables.conversations).where({ id }).update(body);
   return result(updatedList);
@@ -77,5 +103,7 @@ module.exports = {
   getUsersList,
   getList,
   deleteConversation,
+  registerClientConversation,
   update,
+  getById
 };
