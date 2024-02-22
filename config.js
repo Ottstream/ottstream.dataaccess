@@ -116,7 +116,7 @@ class Config {
             pg: {
                 port: envVars.PG_PORT || 5432,
                 host: envVars.PG_HOST || '127.0.0.1',
-                user: envVars.PG_USER || 'admin',
+                user: envVars.PG_USER || 'postgres',
                 password: envVars.PG_PASSWORD || '1111',
                 db: envVars.PG_DB || 'ottstream_chat'
             },
