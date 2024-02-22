@@ -28,7 +28,15 @@ class DbSetup {
           logger.error(error);
           connectDB();
         });
-      require('./db.pg')
+      const knex = require('./db.pg')
+
+      knex.migrate.latest()
+      .then(function() {
+        console.log('Migrations are finished');
+      })
+      .catch(function(err) {
+        console.error('Error running migrate latest:', err);
+      });
     };
 
     connectDB();

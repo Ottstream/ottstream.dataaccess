@@ -33,9 +33,10 @@ const DbSetup = require('./setup')
 // }
 
 // module.exports = init; 
-        const { repositories, models } = require('./src');
+        const { repositories, repositoriesv2, models } = require('./src');
         module.exports = {
             repositories,
+            repositoriesv2,
             models,
             config,
             DbSetup
