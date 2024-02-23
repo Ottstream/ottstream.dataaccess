@@ -8,9 +8,6 @@ const create = async (body) => {
   if (!body.name) return result(null, 'missing name');
   if (!body.type) return result(null, 'missing type');
   if (!body.provider) return result(null, 'missing provider');
-  if (!Array.isArray(body.members) || !body.members.length)
-    return result(null, 'members must be array and required has min 1 member');
-  body.members = JSON.stringify(body.members);
   return await db.table(dbConstants.tables.conversations).insert(body).returning('*');
 };
 
