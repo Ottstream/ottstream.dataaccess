@@ -333,10 +333,14 @@ const updateCalendarEventById = async (calendarEventId, updateBody) => {
     throw new ApiError(httpStatus.NOT_FOUND, 'CalendarEvent not found');
   }
   Object.assign(item, updateBody);
-  await item.save();
+  const [ conversationProvider ] = await Promise.all([
+    getOttProviderConversationProviderByProviderId(item.equipmentInstaller.provider),
+    item.save(),
+  ])
   return {
     oldEvent,
-    newEvent: await getCalendarEventById(calendarEventId)
+    newEvent: await getCalendarEventById(calendarEventId),
+    conversationProvider
   };
 };
 
