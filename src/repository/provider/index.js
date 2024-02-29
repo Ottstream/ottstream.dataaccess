@@ -17,6 +17,14 @@ const get = async (ids) => {
   return result(provider);
 };
 
+const getByMongoId = async (mongo_id) => {
+  const provider = await db
+    .table(dbConstants.tables.providers)
+    .where({ mongo_id })
+    .select('*')
+  return result(provider[0])
+}
+
 const getList = async (filter, limit = 10, page = 1) => {
   const list = await db.table(dbConstants.tables.providers)
     .select()
@@ -44,4 +52,5 @@ module.exports = {
   getList,
   deleteProvider,
   update,
+  getByMongoId
 };

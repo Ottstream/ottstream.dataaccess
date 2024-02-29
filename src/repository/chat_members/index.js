@@ -48,13 +48,13 @@ const find = async (search) => {
   return result(members);
 };
 
-const registerUserMember = async (user) => {
+const registerUserMember = async (user, provider) => {
   let member = await db.table(dbConstants.tables.chatMembers).where({ user_id: user._id.toString() }).returning("*");
   if (!member.length) {
     member = await db.table(dbConstants.tables.chatMembers)
       .insert({
         user_id: user._id.toString(),
-        provider: user.provider.name[0].name,
+        provider: provider.id,
         avatar: user.avatar,
         name: user.firstname + " " + user.lastname,
         phones: JSON.stringify([user.phone]),

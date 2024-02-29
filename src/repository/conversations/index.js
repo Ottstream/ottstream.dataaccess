@@ -1,14 +1,17 @@
-const db = require('../../../db.pg');
-const dbConstants = require('../../constants/db.config');
+const db = require("../../../db.pg");
+const dbConstants = require("../../constants/db.config");
 
 const table = db.table(dbConstants.tables.conversations);
 const result = (data, error) => ({ error, data });
-
+const queryBuilder = require('../../helpers/pg.query')
 const create = async (body) => {
-  if (!body.name) return result(null, 'missing name');
-  if (!body.type) return result(null, 'missing type');
-  if (!body.provider) return result(null, 'missing provider');
-  return await db.table(dbConstants.tables.conversations).insert(body).returning('*');
+  if (!body.name) return result(null, "missing name");
+  if (!body.type) return result(null, "missing type");
+  if (!body.provider) return result(null, "missing provider");
+  return await db
+    .table(dbConstants.tables.conversations)
+    .insert(body)
+    .returning("*");
 };
 
 const getConversation = async (member, target) => {
@@ -19,34 +22,37 @@ const getConversation = async (member, target) => {
     .where({ deleted: 0 });
 
   if (!conversation.length) {
-    conversation = await db.table(dbConstants.tables.conversations)
+    const newConversation = await db
+      .table(dbConstants.tables.conversations)
       .insert({
         name: target.name,
-        type: 'single',
+        type: "single",
         provider: member.provider,
-        provider_id: 'new_provider_id',
-        members: JSON.stringify([member.id, target.id])
+        provider_id: "new_provider_id",
+        members: JSON.stringify([member.id, target.id]),
       })
-      .returning('*')
+      .returning("id");
+    const conversationId = newConversation[0].id
+    conversation = await db.raw(queryBuilder.selectConversationsByMembersByIdQuery(conversationId))
   }
-  
-  return result(conversation[0]);
+
+  return result(conversation);
 };
 
 const registerClientConversation = async (id, body) => {
-    let conversation = await db
+  let conversation = await db
+    .table(dbConstants.tables.conversations)
+    .whereRaw(`members @> '${JSON.stringify([id])}'::jsonb`)
+    .select("*");
+
+  if (!conversation.length) {
+    conversation = await db
       .table(dbConstants.tables.conversations)
-      .whereRaw(`members @> '${JSON.stringify([id])}'::jsonb`)
-      .select('*')
-    
-    if (!conversation.length) {
-      conversation = await db
-        .table(dbConstants.tables.conversations)
-        .insert(body)
-        .returning('*')
-    }
-    return conversation[0]
-}
+      .insert(body)
+      .returning("*");
+  }
+  return conversation[0];
+};
 
 const getUsersList = async (ids, limit = 10, page = 1) => {
   const list = await db
@@ -82,15 +88,22 @@ const getById = async (id) => {
   const conversation = await db
     .table(dbConstants.tables.conversations)
     .where({ id })
-    .select('*')
-    .leftJoin('chat_members', function() {
-      this.on('chat_members.id', 'in', knex.raw('jsonb_array_elements_text(conversations.members)::integer'));
-    })
-  return conversation[0]
-}
+    .select("*")
+    .leftJoin("chat_members", function () {
+      this.on(
+        "chat_members.id",
+        "in",
+        knex.raw("jsonb_array_elements_text(conversations.members)::integer")
+      );
+    });
+  return conversation[0];
+};
 
 const update = async (id, body) => {
-  const updatedList = await db.table(dbConstants.tables.conversations).where({ id }).update(body);
+  const updatedList = await db
+    .table(dbConstants.tables.conversations)
+    .where({ id })
+    .update(body);
   return result(updatedList);
 };
 
@@ -102,5 +115,5 @@ module.exports = {
   deleteConversation,
   registerClientConversation,
   update,
-  getById
+  getById,
 };
