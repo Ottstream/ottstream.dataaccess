@@ -17,9 +17,9 @@ module.exports = {
   },
   acquireConnectionTimeout: 10000,
   migrations: {
-    directory: "./migrations",
+    directory: __dirname+"/migrations",
   },
   seeds: {
-    directory: "./seeds",
+    directory:__dirname+"/seeds",
   },
 };

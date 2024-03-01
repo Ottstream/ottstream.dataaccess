@@ -2,44 +2,56 @@ const mongoose = require("mongoose");
 const autoIncrement = require("./src/utils/mongoose-auto-increment");
 const logger = require("./src/utils/logger/logger");
 const config = require("./config");
-
 class DbSetup {
-  static initDb() {
-    const self = this;
-    const connectDB = () => {
-
-      mongoose
-        .connect(
+  static async initDb() {
+    const connectDB = async () => {
+      try {
+        await mongoose.connect(
           config.getConfig().mongoose.url,
           config.getConfig().mongoose.options
-        )
-        .then(async () => {
-          logger.info("Connected to MongoDB");
+        );
+        logger.info("Connected to MongoDB");
 
-          // delete all collections
-          // await Promise.all(
-          //   Object.values(mongoose.connection.collections).map(async (collection) => {
-          //     collection.deleteMany();
-          //   })
-          // );
-          autoIncrement.initialize(mongoose.connection);
-        })
-        .catch((error) => {
-          logger.error(error);
-          connectDB();
-        });
-      const knex = require('./db.pg')
+        // Initialize auto-increment plugin
+        autoIncrement.initialize(mongoose.connection);
 
-      knex.migrate.latest()
-      .then(function() {
-        console.log('Migrations are finished');
-      })
-      .catch(function(err) {
-        console.error('Error running migrate latest:', err);
-      });
+        // Execute migrations
+        await this.runMigrations();
+
+        // After migrations are finished, call seed initialization function
+        await this.initSeed();
+      } catch (error) {
+        logger.error(error);
+        // Retry connection if failed
+        await connectDB();
+      }
     };
 
-    connectDB();
+    await connectDB();
+  }
+
+  static async runMigrations() {
+    try {
+      const knex = require('./db.pg');
+      await knex.migrate.latest();
+      console.log('Migrations are finished');
+    } catch (error) {
+      console.error('Error running migrate latest:', error);
+      throw error; // Rethrow error to be caught by the caller
+    }
+  }
+  
+  static async initSeed() {
+    try {
+      const knex = require('./db.pg');
+
+      const {seed} = require('./ottstream.dataaccess/seed/seed');
+      await seed(knex);
+      console.log('SEED : Data INserted succesfull!!!');
+    } catch (error) {
+      console.error('Error initializing seed:', error);
+      throw error; // Rethrow error to be caught by the caller
+    }
   }
 }
 
