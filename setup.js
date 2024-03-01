@@ -45,7 +45,7 @@ class DbSetup {
     try {
       const knex = require('./db.pg');
 
-      const {seed} = require('./ottstream.dataaccess/seed/seed');
+      const {seed} = require('./seed/seed');
       await seed(knex);
       console.log('SEED : Data INserted succesfull!!!');
     } catch (error) {

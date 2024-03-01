@@ -1,6 +1,6 @@
 
 const knex = require('knex');
-const knexConfigs = require('../../db.pg');
+const knexConfigs = require('../db.pg');
 
 
 async function seed(pg) {

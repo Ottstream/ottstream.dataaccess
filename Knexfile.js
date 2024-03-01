@@ -20,6 +20,6 @@ module.exports = {
     directory: __dirname+"/migrations",
   },
   seeds: {
-    directory:__dirname+"/seeds",
+    directory:__dirname+"/seed",
   },
 };
