@@ -25,6 +25,24 @@ const getByMongoId = async (mongo_id) => {
   return result(provider[0])
 }
 
+const getByMongoProvider = async (mongoProvider) => {
+  let provider = await db
+    .table(dbConstants.tables.providers)
+    .where({ mongo_id: mongoProvider._id.toString() })
+
+  if (!provider) {
+    provider = await db
+      .table(dbConstants.tables.providers)
+      .insert({
+        mongo_id: mongoProvider._id.toString(),
+        name: mongoProvider.name[0].name
+      })
+      .returning('*')
+  }
+
+  return result(provider[0])
+}
+
 const getList = async (filter, limit = 10, page = 1) => {
   const list = await db.table(dbConstants.tables.providers)
     .select()
@@ -51,6 +69,7 @@ module.exports = {
   get,
   getList,
   deleteProvider,
+  getByMongoProvider,
   update,
   getByMongoId
 };
