@@ -13,7 +13,6 @@ const create = async (body) => {
     .insert(body)
     .returning("*");
 };
-
 const getConversation = async (member, target) => {
   let conversation = await db
     .table(dbConstants.tables.conversations)
@@ -28,12 +27,11 @@ const getConversation = async (member, target) => {
         name: target.name,
         type: "single",
         provider: member.provider,
-        provider_id: "new_provider_id",
         members: JSON.stringify([member.id, target.id]),
       })
       .returning("id");
     const conversationId = newConversation[0].id
-    conversation = await db.raw(queryBuilder.selectConversationsByMembersByIdQuery(conversationId))
+    conversation = await db.raw(queryBuilder.selectConversationsByMembersByIdQuery(conversationId)).then(res => res.rows[0])
   }
 
   return result(conversation);

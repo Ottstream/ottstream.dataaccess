@@ -19,7 +19,6 @@ class DbSetup {
         await this.runMigrations();
 
         // After migrations are finished, call seed initialization function
-        await this.initSeed();
       } catch (error) {
         logger.error(error);
         // Retry connection if failed
@@ -40,19 +39,7 @@ class DbSetup {
       throw error; // Rethrow error to be caught by the caller
     }
   }
-  
-  static async initSeed() {
-    try {
-      const knex = require('./db.pg');
 
-      const {seed} = require('./seed/seed');
-      await seed(knex);
-      console.log('SEED : Data INserted succesfull!!!');
-    } catch (error) {
-      console.error('Error initializing seed:', error);
-      throw error; // Rethrow error to be caught by the caller
-    }
-  }
 }
 
 module.exports = DbSetup;
