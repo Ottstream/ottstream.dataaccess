@@ -74,28 +74,60 @@ const registerClientConversation = async (id, body) => {
   }
   return conversation[0];
 };
-
 const getUsersList = async (ids, limit = 10, page = 1) => {
-  const list = await db
+  let list = await db
     .table(dbConstants.tables.conversations)
     .select()
     .whereRaw(`members @> '${ids}'::jsonb`)
     .where({ deleted: 0 })
-    // .innerJoin(db.raw("jsonb_array_elements_text(conversations.members)::integer as member_id"), 'member_id', 'chat_members.id')
     .limit(limit)
     .offset((page - 1) * limit);
-  return result(list);
+
+  // Fetch additional data using the custom query
+  const memberIds = list.map(item => item.members).flat(); // Assuming members is an array of member IDs
+  console.log(memberIds,455623);
+  list = await db.raw(queryBuilder.selectConversationsByMembersByIdsQuery(memberIds)).then(res => res.rows[0])
+  
+    return result(list);
 };
 
+// const getUsersList = async (ids, limit = 10, page = 1) => {
+//   const list = await db
+//     .table(dbConstants.tables.conversations)
+//     .select()
+//     .whereRaw(`members @> '${ids}'::jsonb`)
+//     .where({ deleted: 0 })
+//     // .innerJoin(db.raw("jsonb_array_elements_text(conversations.members)::integer as member_id"), 'member_id', 'chat_members.id')
+//     .limit(limit)
+//     .offset((page - 1) * limit);
+//   return result(list);
+// };
+
 const getList = async (filter, limit = 10, page = 1) => {
-  const list = await db
+  let list = await db
     .table(dbConstants.tables.conversations)
-    .select()
+    .select('*')
     .where({ ...filter, deleted: 0 })
     .limit(limit)
     .offset((page - 1) * limit);
+
+  // Extract member IDs from the list
+  const memberIds = list.map(item => item.members).flat(); // Assuming members is an array of member IDs
+console.log(memberIds,455623);
+list = await db.raw(queryBuilder.selectConversationsByMembersByIdsQuery(memberIds)).then(res => res.rows[0])
+
   return result(list);
 };
+
+// const getList = async (filter, limit = 10, page = 1) => {
+//   const list = await db
+//     .table(dbConstants.tables.conversations)
+//     .select()
+//     .where({ ...filter, deleted: 0 })
+//     .limit(limit)
+//     .offset((page - 1) * limit);
+//   return result(list);
+// };
 
 const getByMongoId = async (mongo_id) => {
   const provider = await db
