@@ -14,14 +14,17 @@ const create = async (body) => {
     .returning("*");
 };
 const getConversation = async (member, target) => {
+  console.log(member,"adsfdf");
   let conversation = await db
     .table(dbConstants.tables.conversations)
     .select()
     .whereRaw(`members @> '${JSON.stringify([member.id, target.id])}'::jsonb`)
-    .where({ deleted: 0 });
+    .where({ deleted: 0 })
+    .returning("id");
+
 
   if (!conversation.length) {
-    const newConversation = await db
+    conversation = await db
       .table(dbConstants.tables.conversations)
       .insert({
         name: target.name,
@@ -30,10 +33,11 @@ const getConversation = async (member, target) => {
         members: JSON.stringify([member.id, target.id]),
       })
       .returning("id");
-    const conversationId = newConversation[0].id
-    conversation = await db.raw(queryBuilder.selectConversationsByMembersByIdQuery(conversationId)).then(res => res.rows[0])
   }
+  const conversationId = conversation[0].id
 
+  conversation = await db.raw(queryBuilder.selectConversationsByMembersByIdQuery(conversationId)).then(res => res.rows[0])
+  console.log(conversation,7898456);
   return result(conversation);
 };
 
