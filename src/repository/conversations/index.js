@@ -39,6 +39,25 @@ const getConversation = async (member, target) => {
   return result(conversation);
 };
 
+const getByMongoProvider = async (mongoProvider) => {
+  console.log(mongoProvider,"mongoProvider");
+  let provider = await db
+    .table(dbConstants.tables.providers)
+    .where({ mongo_id: mongoProvider._id.toString() })
+console.log(provider,456);
+  if (provider.length === 0) {
+    provider = await db
+      .table(dbConstants.tables.providers)
+      .insert({
+        mongo_id: mongoProvider._id.toString(),
+        name: mongoProvider.name[0].name
+      })
+      .returning('*')
+  }
+console.log(provider,789);
+  return  result(provider[0])
+}
+
 const registerClientConversation = async (id, body) => {
   let conversation = await db
     .table(dbConstants.tables.conversations)
@@ -76,6 +95,13 @@ const getList = async (filter, limit = 10, page = 1) => {
   return result(list);
 };
 
+const getByMongoId = async (mongo_id) => {
+  const provider = await db
+    .table(dbConstants.tables.providers)
+    .where({ mongo_id })
+    .select('*')
+  return result(provider[0])
+}
 const deleteConversation = async (id) => {
   const deletedList = await db
     .table(dbConstants.tables.conversations)
@@ -114,6 +140,8 @@ module.exports = {
   getList,
   deleteConversation,
   registerClientConversation,
+  getByMongoProvider,
   update,
   getById,
+  getByMongoId,
 };

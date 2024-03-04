@@ -30,7 +30,7 @@ const getByMongoProvider = async (mongoProvider) => {
     .table(dbConstants.tables.providers)
     .where({ mongo_id: mongoProvider._id.toString() })
 
-  if (!provider) {
+  if (provider.length === 0) {
     provider = await db
       .table(dbConstants.tables.providers)
       .insert({
