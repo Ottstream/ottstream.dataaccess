@@ -153,6 +153,22 @@ const getById = async (id) => {
   return conversation[0];
 };
 
+const registerUserMember = async (user, provider) => {
+  let member = await db.table(dbConstants.tables.chatMembers).where({ user_id: user._id.toString() }).returning("*");
+  if (!member.length) {
+    member = await db.table(dbConstants.tables.chatMembers)
+      .insert({
+        user_id: user._id.toString(),
+        provider: provider.id,
+        avatar: user.avatar,
+        name: user.firstname + " " + user.lastname,
+        phones: JSON.stringify([user.phone]),
+      })
+      .returning("*");
+  }
+
+  return member[0];
+};
 const update = async (id, body) => {
   const updatedList = await db
     .table(dbConstants.tables.conversations)
@@ -172,4 +188,5 @@ module.exports = {
   update,
   getById,
   getByMongoId,
+  registerUserMember
 };
