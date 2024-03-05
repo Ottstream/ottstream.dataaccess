@@ -45,6 +45,7 @@ const find = async (search) => {
     );
   })
   .select("*");
+  // console.log();
   return result(members);
 };
 

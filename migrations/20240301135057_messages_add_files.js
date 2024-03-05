@@ -8,6 +8,7 @@ exports.up = function(knex) {
         table.jsonb('files').defaultTo([]);
         table.string('social_provider').defaultTo(null);
         table.string('provider_message_id').defaultTo(null);
+        table.boolean('pin').defaultTo(false)
       })
 };
 
