@@ -137,12 +137,14 @@ const deleteConversation = async (id) => {
     .update({ deleted: 1, deleted_at: new Date() });
   return result(deletedList);
 };
-const pinConversation = async (id) => {
-  const pinedConversation = await db
-  .table(dbConstants.tables.conversations)
-  .where({ id })
-  .update({ pined: true});
-}
+const pinConversations = async (id, pinnedBy) => {
+  const pinnedConversation = await db
+    .table(dbConstants.tables.conversations)
+    .where({ id })
+    .update({ pinned: true, pinnedBy });
+  console.log(pinnedConversation, ":pinned");
+  return pinnedConversation;
+};
 const getById = async (id) => {
   const conversation = await db
     .table(dbConstants.tables.conversations)
@@ -177,4 +179,5 @@ module.exports = {
   update,
   getById,
   getByMongoId,
+  pinConversations
 };
