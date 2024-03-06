@@ -13,37 +13,19 @@ class PgQueryBuilder {
         GROUP BY conversations.id;`
  
     }
-//     selectConversationsByMembersByIdsQuery(ids) {
-//         const idList = ids.join(','); // Assuming ids is an array of integers
-//         return `SELECT conversations.id, conversations.name, conversations.type, conversations.created_at, jsonb_agg(jsonb_build_object('id', subquery.member_id, 'name', subquery.member_name, 'phones', subquery.phones)) AS members
-//         FROM conversations
-//         LEFT JOIN (
-//             SELECT conversations.id AS conversation_id, chat_members.id AS member_id, chat_members.name AS member_name, chat_members.phones as phones
-//             FROM conversations
-//             CROSS JOIN LATERAL jsonb_array_elements_text(conversations.members) AS member_id
-//             LEFT JOIN chat_members ON CAST(chat_members.id AS text) = member_id
-//         ) AS subquery ON conversations.id = subquery.conversation_id
-//         WHERE conversations.id IN (${idList})
-//         GROUP BY conversations.id;`;
-//     }
-selectConversationsByMembersByIdsQuery(ids) {
-    const idList = ids.join(','); // Assuming ids is an array of integers
-    return `SELECT conversations.id, conversations.name, conversations.type, conversations.created_at, 
-    jsonb_agg(jsonb_build_object('id', subquery.member_id, 'name', subquery.member_name, 'phones', subquery.phones)) AS members
-    FROM conversations
-    LEFT JOIN (
-        SELECT conversations.id AS conversation_id, chat_members.id AS member_id, chat_members.name AS member_name, chat_members.phones as phones
+    selectConversationsByMembersByIdsQuery(ids) {
+        const idList = ids.join(','); // Assuming ids is an array of integers
+        return `SELECT conversations.id, conversations.name, conversations.type, conversations.created_at, jsonb_agg(jsonb_build_object('id', subquery.member_id, 'name', subquery.member_name, 'phones', subquery.phones)) AS members
         FROM conversations
-        CROSS JOIN LATERAL jsonb_array_elements_text(conversations.members) AS member_id
-        LEFT JOIN chat_members ON CAST(chat_members.id AS text) = member_id
-        -- Assuming we are checking if chat_member is a client
-        WHERE EXISTS (
-            SELECT 1 FROM clients WHERE clients.member_id = chat_members.id
-        )
-    ) AS subquery ON conversations.id = subquery.conversation_id
-    WHERE conversations.id IN (${idList})
-    GROUP BY conversations.id;`;
-}
+        LEFT JOIN (
+            SELECT conversations.id AS conversation_id, chat_members.id AS member_id, chat_members.name AS member_name, chat_members.phones as phones
+            FROM conversations
+            CROSS JOIN LATERAL jsonb_array_elements_text(conversations.members) AS member_id
+            LEFT JOIN chat_members ON CAST(chat_members.id AS text) = member_id
+        ) AS subquery ON conversations.id = subquery.conversation_id
+        WHERE conversations.id IN (${idList})
+        GROUP BY conversations.id;`;
+    }
 
 }
 
