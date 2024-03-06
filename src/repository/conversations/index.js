@@ -137,7 +137,12 @@ const deleteConversation = async (id) => {
     .update({ deleted: 1, deleted_at: new Date() });
   return result(deletedList);
 };
-
+const pinConversation = async (id) => {
+  const pinedConversation = await db
+  .table(dbConstants.tables.conversations)
+  .where({ id })
+  .update({ pined: true});
+}
 const getById = async (id) => {
   const conversation = await db
     .table(dbConstants.tables.conversations)
