@@ -1282,6 +1282,22 @@ const getClientFirstname = async (clientId) => {
 const getAll = async (filter) => {
   return Client.find(filter);
 };
+const getAllClients = async (providerIds, limit = 10, page = 1) => {
+  try {
+      const skipCount = (page - 1) * limit;
+
+      const clients = await Client
+          .find({ provider: { $in: providerIds.provider } })
+          .skip(skipCount)
+          .limit(limit)
+          .select('personalInfo.firstname personalInfo.lastname personalInfo.sex phones emails');
+
+      return clients;
+  } catch (error) {
+      console.error("Error fetching clients:", error);
+      throw error;
+  }
+}
 
 /**
  * update many
@@ -1321,4 +1337,5 @@ module.exports = {
   updateClientSettingsById,
   getClientEmailById,
   getClientFirstname,
+  getAllClients
 };
