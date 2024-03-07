@@ -213,6 +213,8 @@ const userSchema = mongoose.Schema(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
   }
 );
 
@@ -224,7 +226,6 @@ userSchema.virtual('appointments', {
 })
 
 // add plugin that converts mongoose to json
-userSchema.plugin(toJSON);
 userSchema.plugin(paginate);
 userSchema.plugin(aggregatePaginate);
 
