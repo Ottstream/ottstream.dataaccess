@@ -63,12 +63,12 @@ const verifyEmailToken = async (userId, type) => {
  * @returns {Promise<Token>}
  */
 const verifyToken = async (token, type) => {
-  const payload = jwt.verify(token, config.getConfig().jwt.secret);
-  const tokenDoc = await Token.findOne({ token, type, user: payload.sub, blacklisted: false });
-  if (!tokenDoc) {
-    throw new Error('Token not found');
+  try {
+    return jwt.verify(token, config.getConfig().jwt.secret);
+  } catch (error) {
+    throw new UnauthorizedError();
   }
-  return tokenDoc;
+
 };
 /**
  * Generate reset password token
