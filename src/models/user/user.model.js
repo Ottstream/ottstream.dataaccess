@@ -216,6 +216,13 @@ const userSchema = mongoose.Schema(
   }
 );
 
+userSchema.virtual('appointments', {
+  ref: 'CalendarEvent',
+  localField: '_id',
+  foreignField: 'equipmentInstaller',
+  justOne: false
+})
+
 // add plugin that converts mongoose to json
 userSchema.plugin(toJSON);
 userSchema.plugin(paginate);
