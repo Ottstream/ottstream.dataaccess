@@ -137,14 +137,44 @@ const deleteConversation = async (id) => {
     .update({ deleted: 1, deleted_at: new Date() });
   return result(deletedList);
 };
-const pinConversations = async (id, pinnedBy) => {
-  const pinnedConversation = await db
-    .table(dbConstants.tables.conversations)
-    .where({ id })
-    .update({ pinned: true, pinnedBy });
-  console.log(pinnedConversation, ":pinned");
-  return pinnedConversation;
-};
+// const pinConversations = async (id, pinnedBy) => {
+//   const pinnedConversation = await db
+//     .table(dbConstants.tables.conversations)
+//     .where({ id })
+//     .update({ pinned: true, pinnedBy });
+//   console.log(pinnedConversation, ":pinned");
+//   return pinnedConversation;
+// };
+const pinConversations = async(id, pinnedBy) => {
+  try {
+      // Fetch the conversation from the database
+      const conversation = await db
+          .table(dbConstants.tables.conversations)
+          .where({ id })
+          .first();
+
+      // If the conversation exists
+      if (conversation) {
+          // Update the pinned status based on its current value
+          const updatedPinnedStatus = !conversation.pinned;
+
+          // Update the conversation in the database
+          const updatedConversation = await db
+              .table(dbConstants.tables.conversations)
+              .where({ id })
+              .update({ pinned: updatedPinnedStatus, pinnedBy });
+
+          console.log(updatedConversation, "pinned:", updatedPinnedStatus);
+          return updatedConversation;
+      } else {
+          console.log("Conversation not found");
+          return null; // Or throw an error, depending on your use case
+      }
+  } catch (error) {
+      console.error("Error toggling pinned status:", error);
+      throw error; // Rethrow the error or handle it as appropriate
+  }
+}
 const getById = async (id) => {
   const conversation = await db
     .table(dbConstants.tables.conversations)
