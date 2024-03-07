@@ -85,6 +85,7 @@ const helpRepository = require("./help/help.repository");
 const telegramBotRepository = require("./telegram_bot/telegram_bot.repository");
 const botMessagesRepository = require("./telegram_bot/bot_messages.repository");
 const conversationsRepository = require("./conversations");
+const conversationsMemberRepository = require("./conversation_members");
 const messagesRepository = require("./messages");
 const participantRepository = require("./participant");
 const chatMembersRepository = require('./chat_members');
@@ -92,6 +93,7 @@ const chatMembersRepository = require('./chat_members');
 module.exports = {
   authRepository,
   backupRepository,
+  conversationsMemberRepository,
   deviceOptionRepository,
   packagesRepository,
   creditRepository,
