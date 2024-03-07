@@ -1,5 +1,6 @@
 const tables = {
     conversations: 'conversations',
+    conversation_members: 'conversation_members',
     messages: 'messages',
     participants: 'participants',
     chatMembers: 'chat_members',
