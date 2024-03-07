@@ -213,11 +213,19 @@ const userSchema = mongoose.Schema(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
   }
 );
 
+userSchema.virtual('appointments', {
+  ref: 'CalendarEvent',
+  localField: '_id',
+  foreignField: 'equipmentInstaller',
+  justOne: false
+})
+
 // add plugin that converts mongoose to json
-userSchema.plugin(toJSON);
 userSchema.plugin(paginate);
 userSchema.plugin(aggregatePaginate);
 
