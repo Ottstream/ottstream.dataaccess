@@ -9,9 +9,9 @@ const create = async (body) => {
   if (!body.mongo_id) return result(null, "missing mongo_id");
   return await db.table(dbConstants.tables.clients).insert(body).returning("*");
 };
-const getClientByProviderId = async(filter,limit = 10, page = 1) => {
+const getClientByProviderId = async(providerID,search) => {
   // console.log(filter,"filter");
-  const data = await getAllClients(filter,limit = 10, page = 1);
+  const data = await getAllClients(providerID,search);
   console.log(data,"dada");
 
   return result(data)

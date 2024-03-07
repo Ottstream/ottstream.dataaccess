@@ -1,6 +1,6 @@
 const db = require("../../../db.pg");
 const dbConstants = require("../../constants/db.config");
-
+const {getClientByProviderId} = require('../client/index')
 const table = db.table(dbConstants.tables.chatMembers);
 const result = (data, error) => ({ error, data });
 
@@ -35,18 +35,24 @@ const getMemberByIdOrClientId = async (id) => {
   return result(member[0]);
 };
 
-const find = async (search) => {
-  const members = await db.table(dbConstants.tables.chatMembers)
-  .where(function () {
-    this.whereRaw(`exists (select 1 from jsonb_array_elements(phones) as elem where elem->>'phoneNumber' like ?)`, [`%${search}%`]).orWhere(
-      "name",
-      "ILIKE",
-      `%${search}%`
-    );
-  })
-  .select("*");
-  // console.log();
-  return result(members);
+const find = async (user,type, search) => {
+  const providerId = user.provider._id;
+  console.log(providerId,"providerID");
+  if (type === 'client') {
+    const users = await getClientByProviderId(providerId,search)
+    
+  }
+  // const members = await db.table(dbConstants.tables.chatMembers)
+  // .where(function () {
+  //   this.whereRaw(`exists (select 1 from jsonb_array_elements(phones) as elem where elem->>'phoneNumber' like ?)`, [`%${search}%`]).orWhere(
+  //     "name",
+  //     "ILIKE",
+  //     `%${search}%`
+  //   );
+  // })
+  // .select("*");
+  // // console.log();
+  // return result(members);
 };
 
 const registerUserMember = async (user, provider) => {

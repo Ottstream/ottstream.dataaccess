@@ -1,6 +1,6 @@
 const db = require("../../../db.pg");
 const dbConstants = require("../../constants/db.config");
-
+const {getClientByProviderId} = require('../client/index');
 const table = db.table(dbConstants.tables.conversations);
 const result = (data, error) => ({ error, data });
 const queryBuilder = require('../../helpers/pg.query')
@@ -98,39 +98,17 @@ const getUsersList = async (ids, limit = 10, page = 1) => {
 //   return result(list);
 // };
 
-// const getList = async (filter, limit = 10, page = 1) => {
-//   let list = await db
-//     .table(dbConstants.tables.conversations)
-//     .select('id')
-//     .where({ ...filter, deleted: 0 })
-//     .limit(limit)
-//     .offset((page - 1) * limit);
 
-//   // Extract member IDs from the list
-//   const memberIds = list.map(item => item.id) // Assuming members is an array of member IDs
-//   console.log(memberIds,455623);
-//   list = await db.raw(queryBuilder.selectConversationsByMembersByIdsQuery(memberIds)).then(res => res.rows)
-
-//   return result(list);
-// };
 const getList = async (filter, limit = 10, page = 1) => {
-  let list;
-  // let list = await db
-  //   .table(dbConstants.tables.conversations)
-  //   .select('id')
-  //   .where({ ...filter, deleted: 0 })
-  //   .limit(limit)
-  //   .offset((page - 1) * limit);
+  const list = await db
+    .table(dbConstants.tables.conversations)
+    .select()
+    .where({ ...filter, deleted: 0 })
+    .limit(limit)
+    .offset((page - 1) * limit);
+  return result(list);
+};
 
-  // Extract member IDs from the list
-//  if (list.length === 0) {
-  // console.log(filter,"filter");
-const data = await getClientByProviderId(filter, limit = 10, page = 1);
-console.log(data);
-return data
-// };
-// return result(list);
-}
 const getByMongoId = async (mongo_id) => {
   const provider = await db
     .table(dbConstants.tables.providers)

@@ -1282,20 +1282,26 @@ const getClientFirstname = async (clientId) => {
 const getAll = async (filter) => {
   return Client.find(filter);
 };
-const getAllClients = async (providerIds, limit = 10, page = 1) => {
+const getAllClients = async (providerId, search) => {
   try {
-      const skipCount = (page - 1) * limit;
+    const query = {
+      provider: providerId,
+      $or: [
+        { 'personalInfo.firstname': { $regex: search, $options: 'i' } },
+        { 'personalInfo.lastname': { $regex: search, $options: 'i' } },
+        // { 'phones':  { $regex: search, $options: 'i' } },
+        //  { 'emails':  { $regex: search, $options: 'i' } } 
+      ]
+    };
 
-      const clients = await Client
-          .find({ provider: { $in: providerIds.provider } })
-          .skip(skipCount)
-          .limit(limit)
-          .select('personalInfo.firstname personalInfo.lastname personalInfo.sex phones emails');
+    const clients = await Client
+      .find(query)
+      .select('personalInfo.firstname personalInfo.lastname personalInfo.sex phones emails');
 
-      return clients;
+    return clients;
   } catch (error) {
-      console.error("Error fetching clients:", error);
-      throw error;
+    console.error("Error fetching clients:", error);
+    throw error;
   }
 }
 
