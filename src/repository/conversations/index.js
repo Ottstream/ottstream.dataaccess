@@ -14,14 +14,17 @@ const create = async (body) => {
     .returning("*");
 };
 const getConversation = async (member, target) => {
+  console.log(member,"adsfdf");
   let conversation = await db
     .table(dbConstants.tables.conversations)
     .select()
     .whereRaw(`members @> '${JSON.stringify([member.id, target.id])}'::jsonb`)
-    .where({ deleted: 0 });
+    .where({ deleted: 0 })
+    .returning("id");
+
 
   if (!conversation.length) {
-    const newConversation = await db
+    conversation = await db
       .table(dbConstants.tables.conversations)
       .insert({
         name: target.name,
@@ -30,10 +33,11 @@ const getConversation = async (member, target) => {
         members: JSON.stringify([member.id, target.id]),
       })
       .returning("id");
-    const conversationId = newConversation[0].id
-    conversation = await db.raw(queryBuilder.selectConversationsByMembersByIdQuery(conversationId)).then(res => res.rows[0])
   }
+  const conversationId = conversation[0].id
 
+  conversation = await db.raw(queryBuilder.selectConversationsByMembersByIdQuery(conversationId)).then(res => res.rows[0])
+  console.log(conversation,7898456);
   return result(conversation);
 };
 
@@ -70,28 +74,54 @@ const registerClientConversation = async (id, body) => {
   }
   return conversation[0];
 };
-
 const getUsersList = async (ids, limit = 10, page = 1) => {
-  const list = await db
-    .table(dbConstants.tables.conversations)
-    .select()
-    .whereRaw(`members @> '${ids}'::jsonb`)
-    .where({ deleted: 0 })
-    // .innerJoin(db.raw("jsonb_array_elements_text(conversations.members)::integer as member_id"), 'member_id', 'chat_members.id')
-    .limit(limit)
-    .offset((page - 1) * limit);
+  const conversationsIdList = await db
+  .table(dbConstants.tables.conversations)
+  .select('id')
+  .whereRaw(`members @> '${ids}'::jsonb`)
+  .where({ deleted: 0 })
+  .limit(limit)
+  .offset((page - 1) * limit);
+
+  const list = await db.raw(queryBuilder.selectConversationsByMembersByIdsQuery(conversationsIdList.map(item => item.id))).then(res => res.rows)
   return result(list);
 };
+// const getUsersList = async (ids, limit = 10, page = 1) => {
+//   const list = await db
+//     .table(dbConstants.tables.conversations)
+//     .select()
+//     .whereRaw(`members @> '${ids}'::jsonb`)
+//     .where({ deleted: 0 })
+//     // .innerJoin(db.raw("jsonb_array_elements_text(conversations.members)::integer as member_id"), 'member_id', 'chat_members.id')
+//     .limit(limit)
+//     .offset((page - 1) * limit);
+//   return result(list);
+// };
 
 const getList = async (filter, limit = 10, page = 1) => {
-  const list = await db
+  let list = await db
     .table(dbConstants.tables.conversations)
-    .select()
+    .select('id')
     .where({ ...filter, deleted: 0 })
     .limit(limit)
     .offset((page - 1) * limit);
+
+  // Extract member IDs from the list
+  const memberIds = list.map(item => item.id) // Assuming members is an array of member IDs
+  console.log(memberIds,455623);
+  list = await db.raw(queryBuilder.selectConversationsByMembersByIdsQuery(memberIds)).then(res => res.rows)
+
   return result(list);
 };
+// const getList = async (filter, limit = 10, page = 1) => {
+//   const list = await db
+//     .table(dbConstants.tables.conversations)
+//     .select()
+//     .where({ ...filter, deleted: 0 })
+//     .limit(limit)
+//     .offset((page - 1) * limit);
+//   return result(list);
+// };
 
 const getByMongoId = async (mongo_id) => {
   const provider = await db
@@ -107,7 +137,44 @@ const deleteConversation = async (id) => {
     .update({ deleted: 1, deleted_at: new Date() });
   return result(deletedList);
 };
+// const pinConversations = async (id, pinnedBy) => {
+//   const pinnedConversation = await db
+//     .table(dbConstants.tables.conversations)
+//     .where({ id })
+//     .update({ pinned: true, pinnedBy });
+//   console.log(pinnedConversation, ":pinned");
+//   return pinnedConversation;
+// };
+const pinConversations = async(id, pinnedBy) => {
+  try {
+      // Fetch the conversation from the database
+      const conversation = await db
+          .table(dbConstants.tables.conversations)
+          .where({ id })
+          .first();
 
+      // If the conversation exists
+      if (conversation) {
+          // Update the pinned status based on its current value
+          const updatedPinnedStatus = !conversation.pinned;
+
+          // Update the conversation in the database
+          const updatedConversation = await db
+              .table(dbConstants.tables.conversations)
+              .where({ id })
+              .update({ pinned: updatedPinnedStatus, pinnedBy });
+
+          console.log(updatedConversation, "pinned:", updatedPinnedStatus);
+          return updatedConversation;
+      } else {
+          console.log("Conversation not found");
+          return null; // Or throw an error, depending on your use case
+      }
+  } catch (error) {
+      console.error("Error toggling pinned status:", error);
+      throw error; // Rethrow the error or handle it as appropriate
+  }
+}
 const getById = async (id) => {
   const conversation = await db
     .table(dbConstants.tables.conversations)
@@ -142,4 +209,5 @@ module.exports = {
   update,
   getById,
   getByMongoId,
+  pinConversations
 };
