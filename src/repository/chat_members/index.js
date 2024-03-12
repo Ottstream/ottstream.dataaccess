@@ -40,7 +40,8 @@ const find = async (user,type, search) => {
   console.log(providerId,"providerID");
   if (type === 'client') {
     const users = await getClientByProviderId(providerId,search)
-    
+  
+    return result(users);
   }
   // const members = await db.table(dbConstants.tables.chatMembers)
   // .where(function () {
@@ -71,18 +72,51 @@ const registerUserMember = async (user, provider) => {
 
   return member[0];
 };
+const registerMember = async (chatMembers, type, providerSqlId) => {
+  const registeredMembers = [];
+  
+  // Ensure chatMembers is always iterable
+  const iterableChatMembers = Array.isArray(chatMembers) ? chatMembers : [chatMembers];
 
-const registerMember = async (chatMember) => {
-  let member = await db.table(dbConstants.tables.chatMembers)
-    .where(function () {
-      this.where("client_id", user._id).orWhere("user_id", user._id);
-    })
-    .select("id")[0];
-  if (!member) {
-    member = await db.table(dbConstants.tables.chatMembers).insert(chatMember).returning("id")[0];
+  for (const chatMember of iterableChatMembers) {
+    try {
+      let member;
+      if (type === 'client') {
+        member = await db.table(dbConstants.tables.chatMembers)
+          .where('client_id', chatMember.client_id)
+          .select('*')
+          .first();
+      } else {
+        member = await db.table(dbConstants.tables.chatMembers)
+          .where('user_id', '=', chatMember.user_id)
+          .select('*')
+          .first();
+      }
+
+      
+      if (!member) {
+        member = await db.table(dbConstants.tables.chatMembers)
+          .insert({
+            ...(type === 'client' ? { client_id: chatMember.client_id } : { user_id: chatMember.user_id }),
+            name: chatMember.name,
+            avatar: chatMember.avatar || '', // Assuming avatar might be undefined, set it to an empty string if not provided
+            phones: JSON.stringify(chatMember.phones), // Convert to JSON string
+            provider: providerSqlId.data.id
+          })
+          .returning('*')
+          .then(ids => ids[0]);
+      }
+
+      registeredMembers.push(member);
+    } catch (error) {
+      console.error("Error registering member:", error);
+      throw error;
+    }
   }
-  return result(member.id);
+  
+  return registeredMembers;
 };
+
 
 const findById = async (id) => {
   const member = await db.table(dbConstants.tables.chatMembers).where({ id }).select("*");

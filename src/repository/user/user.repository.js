@@ -68,6 +68,24 @@ const getAllUsers = async (filter) => {
   return User.find(filter);
 };
 
+const getAllUsersTeam = async (filter, search) => {
+  try {
+    // Assuming 'User' is your Mongoose model
+    const users = await User.find({ 
+      provider: filter,
+      $or: [
+        { firstname: { $regex: search, $options: 'i' } }, // 'i' for case-insensitive
+        { lastname: { $regex: search, $options: 'i' } }
+      ]
+    })
+    .select('firstname lastname sex avatar id email phone');
+  
+    return users;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    throw error;
+  }
+};
 /**
  * reset settings
  */
@@ -842,6 +860,7 @@ module.exports = {
   UserCheckEmail,
   UserCheckPhone,
   getAllUsers,
+  getAllUsersTeam,
   getUserByTelegramLogin,
   findDifferentAndUpdateUser,
 };

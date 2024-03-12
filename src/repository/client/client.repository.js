@@ -1296,8 +1296,7 @@ const getAllClients = async (providerId, search) => {
 
     const clients = await Client
       .find(query)
-      .select('personalInfo.firstname personalInfo.lastname personalInfo.sex phones emails');
-
+      .select('personalInfo.firstname personalInfo.lastname personalInfo.sex personalInfo.avatar  phones emails');
     return clients;
   } catch (error) {
     console.error("Error fetching clients:", error);
