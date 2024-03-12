@@ -9,7 +9,6 @@ exports.up = function(knex) {
         table.string('firstname').unsigned();
         table.string('lastname').unsigned();
         table.string('email').unsigned();
-        table.string('password').unsigned();
         table.boolean('deleted').defaultTo(1);
         table.timestamps(true, true);
     })
