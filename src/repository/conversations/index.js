@@ -161,6 +161,37 @@ const pinConversations = async(id, pinnedBy) => {
       throw error; // Rethrow the error or handle it as appropriate
   }
 }
+const blockConversation = async (id) => {
+  try {
+    // Fetch the conversation from the database
+    const conversation = await db
+        .table(dbConstants.tables.conversations)
+        .where({ id })
+        .first();
+
+    // If the conversation exists
+    if (conversation) {
+        // Update the pinned status based on its current value
+        const updatedBlockedStatus = !conversation.blocked;
+
+        // Update the conversation in the database
+        const updatedConversation = await db
+            .table(dbConstants.tables.conversations)
+            .where({ id })
+            .update({ blocked: updatedBlockedStatus,});
+
+        console.log(updatedConversation, "Blocked:", updatedBlockedStatus);
+        return updatedConversation;
+    } else {
+        console.log("Conversation not found");
+        return null; // Or throw an error, depending on your use case
+    }
+} catch (error) {
+    console.error("Error toggling pinned status:", error);
+    throw error; // Rethrow the error or handle it as appropriate
+}
+};
+
 const getById = async (id) => {
   const conversation = await db
     .table(dbConstants.tables.conversations)
@@ -195,5 +226,6 @@ module.exports = {
   update,
   getById,
   getByMongoId,
-  pinConversations
+  pinConversations,
+  blockConversation
 };

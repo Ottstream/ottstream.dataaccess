@@ -6,7 +6,8 @@ exports.up = function(knex) {
   return knex.schema.alterTable('conversations', (table) => {
     table.integer('provider').unsigned();
     table.boolean('pinned').defaultTo(false)
-    table.string('pinnedBy')
+    table.jsonb('pinnedBy').defaultTo([]);
+    table.boolean('blocked').defaultTo(false)
     table.foreign('provider').references('providers.id');
   })
 };

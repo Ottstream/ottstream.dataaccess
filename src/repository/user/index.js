@@ -70,7 +70,7 @@ const getList = async (filter, limit = 10, page = 1) => {
 const deleteUser = async (id) => {
   const deletedList = await db.table(dbConstants.tables.users)
     .where({ id })
-    .update({ deleted: 1, deleted_at: new Date() });
+    .update({ deleted: true,});
   return result(deletedList);
 };
 

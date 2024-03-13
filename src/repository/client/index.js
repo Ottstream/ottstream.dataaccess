@@ -52,6 +52,7 @@ const getClientByProviderSqlId = async (providerSqlId ,page , limit) => {
     throw error;
 }
 };
+
 const getClient = async (ids) => {
   const client = await db.table(dbConstants.tables.clients)
     .select()
@@ -82,7 +83,7 @@ const getList = async (filter, limit = 10, page = 1) => {
 const deleteClient = async (id) => {
   const deletedList = await db.table(dbConstants.tables.clients)
     .where({ id })
-    .update({ deleted: 1, deleted_at: new Date() });
+    .update({ deleted: true, });
   return result(deletedList);
 };
 
@@ -99,5 +100,5 @@ module.exports = {
   deleteClient,
   update,
   getClientByProviderId,
-  getClientByProviderSqlId
+  getClientByProviderSqlId,
 };
