@@ -70,7 +70,7 @@ const registerUserMember = async (user, provider) => {
       .returning("*");
   }
 
-  return member[0];
+  return member;
 };
 const registerMember = async (chatMembers, type, providerSqlId) => {
   const registeredMembers = [];
@@ -122,7 +122,17 @@ const findById = async (id) => {
   const member = await db.table(dbConstants.tables.chatMembers).where({ id }).select("*");
   return result(member[0]);
 };
-
+const findBySqlProviderId = async (id) => {
+  console.log(id);
+  const member = await db
+    .table(dbConstants.tables.chatMembers)
+    .where({ provider:id })
+    .whereNotNull('user_id') // Filter where user_id is not null
+    .select("id")
+    .returning("id")
+    .orderBy("id")
+  return result(member);
+};
 const getList = async (filter, limit = 10, page = 1) => {
   const list = await db.table(dbConstants.tables.chatMembers)
     .where(filter)
@@ -137,9 +147,11 @@ module.exports = {
   findByUserId,
   getMemberByIdOrClientId,
   find,
-  registerUserMember,
+  registerUserMember, 
   registerMember,
   findById,
   getMemberByClientId,
   getList,
+  findBySqlProviderId,
+  
 };

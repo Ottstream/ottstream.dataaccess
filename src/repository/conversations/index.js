@@ -5,16 +5,23 @@ const table = db.table(dbConstants.tables.conversations);
 const result = (data, error) => ({ error, data });
 const queryBuilder = require('../../helpers/pg.query')
 const create = async (body) => {
+  console.log(body.members);
   if (!body.name) return result(null, "missing name");
   if (!body.type) return result(null, "missing type");
   if (!body.provider) return result(null, "missing provider");
   return await db
     .table(dbConstants.tables.conversations)
-    .insert(body)
+    .insert(
+      {
+        name:body.name,
+        type:body.type,
+        members:JSON.stringify(body.members),
+        provider:body.provider
+      }
+    )
     .returning("*");
 };
-const getConversation = async (member, target) => {
-  console.log(member,"adsfdf");
+const getConversation = async (member, target, idsArray) => {
   let conversation = await db
     .table(dbConstants.tables.conversations)
     .select()
@@ -22,24 +29,31 @@ const getConversation = async (member, target) => {
     .where({ deleted: 0 })
     .returning("id");
 
-
-  if (!conversation.length) {
+  if (!conversation.length || conversation.type === 'group') {
+    const isMemberInArray = idsArray.includes(member.id);
+    const isTargetInArray = idsArray.includes(target.id);
+    const isTeam = isMemberInArray && isTargetInArray;
+    const members = JSON.stringify([member.id, target.id]);
+    
     conversation = await db
       .table(dbConstants.tables.conversations)
       .insert({
         name: target.name,
         type: "single",
         provider: member.provider,
-        members: JSON.stringify([member.id, target.id]),
+        members: members,
+        isTeam: isTeam
       })
       .returning("id");
   }
-  const conversationId = conversation[0].id
+
+  const conversationId = conversation[0].id;
 
   conversation = await db.raw(queryBuilder.selectConversationsByMembersByIdQuery(conversationId)).then(res => res.rows[0])
-  console.log(conversation,7898456);
-  return result(conversation);
+
+  return conversation;
 };
+
 
 const getByMongoProvider = async (mongoProvider) => {
   console.log(mongoProvider,"mongoProvider");
@@ -100,12 +114,15 @@ const getUsersList = async (ids, limit = 10, page = 1) => {
 
 
 const getList = async (filter, limit = 10, page = 1) => {
-  const list = await db
+  const conversationsIdList= await db
     .table(dbConstants.tables.conversations)
     .select()
     .where({ ...filter, deleted: 0 })
+    .andWhere({ isTeam: false }) // Add the condition for isTeam here
     .limit(limit)
     .offset((page - 1) * limit);
+    const list = await db.raw(queryBuilder.selectConversationsByMembersByIdsQuery(conversationsIdList.map(item => item.id))).then(res => res.rows)
+
   return result(list);
 };
 
@@ -133,34 +150,41 @@ const deleteConversation = async (id) => {
 // };
 const pinConversations = async(id, pinnedBy) => {
   try {
-      // Fetch the conversation from the database
-      const conversation = await db
-          .table(dbConstants.tables.conversations)
-          .where({ id })
-          .first();
+    // Fetch the conversation from the database
+    const conversation = await db
+      .table(dbConstants.tables.conversations)
+      .where({ id })
+      .first();
 
-      // If the conversation exists
-      if (conversation) {
-          // Update the pinned status based on its current value
-          const updatedPinnedStatus = !conversation.pinned;
+    // If the conversation exists
+    if (conversation) {
+      let updatedPinnedStatus = !conversation.pinned;
+      let updatedPinnedBy = null;
 
-          // Update the conversation in the database
-          const updatedConversation = await db
-              .table(dbConstants.tables.conversations)
-              .where({ id })
-              .update({ pinned: updatedPinnedStatus, pinnedBy });
-
-          console.log(updatedConversation, "pinned:", updatedPinnedStatus);
-          return updatedConversation;
-      } else {
-          console.log("Conversation not found");
-          return null; // Or throw an error, depending on your use case
+      // Check if the conversation is being pinned or unpinned
+      if (updatedPinnedStatus) {
+        updatedPinnedBy = pinnedBy;
       }
+
+      // Update the conversation in the database
+      const updatedConversation = await db
+        .table(dbConstants.tables.conversations)
+        .where({ id })
+        .update({ pinned: updatedPinnedStatus, pinnedBy: updatedPinnedBy });
+
+      console.log(updatedConversation, "pinned:", updatedPinnedStatus);
+
+      return { updatedConversation, updatedPinnedStatus };
+    } else {
+      console.log("Conversation not found");
+      return null; // Or throw an error, depending on your use case
+    }
   } catch (error) {
-      console.error("Error toggling pinned status:", error);
-      throw error; // Rethrow the error or handle it as appropriate
+    console.error("Error toggling pinned status:", error);
+    throw error; // Rethrow the error or handle it as appropriate
   }
 }
+
 const blockConversation = async (id) => {
   try {
     // Fetch the conversation from the database
@@ -215,9 +239,21 @@ const update = async (id, body) => {
   return result(updatedList);
 };
 
+const getTeamConversation = async() => {
+
+    let data = await db
+      .table(dbConstants.tables.conversations)
+      .select("*")
+      .where({ deleted: 0 })
+      .andWhere({ isTeam: true }) // Add the condition for isTeam here
+      .returning("id");
+  
+    return result(data)
+}
 module.exports = {
   create,
   getConversation,
+  getTeamConversation,
   getUsersList,
   getList,
   deleteConversation,
