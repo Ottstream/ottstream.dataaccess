@@ -97,10 +97,33 @@ const emailCheck = async (email) => {
   return { result: userEmailCheck || providerEmailCheck };
 };
 
+/**
+ * Login with username and password
+ * @param {string} email
+ * @param {string} password
+ * @returns {Promise<User>}
+ */
+const loginUserWithEmailAndOneTimePass = async (email, oneTimePass) => {
+  const user = await userService.getUserByEmail(email);
+  if (!user) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect email or password');
+  } else if (user.oneTimePass !== oneTimePass) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect oneTimePassword');
+  }
+  await user.updateOne({
+    email,
+    $set: { lastActiveTime: Date.now() },
+    // $set: { lastActiveTime: Date.now(), loginAttempt: 0 },
+    new: true,
+  });
+  return user;
+};
+
 module.exports = {
   loginUserWithEmailAndPassword,
   logout,
   otpCheck,
   emailCheck,
   resetPassword,
+  loginUserWithEmailAndOneTimePass
 };

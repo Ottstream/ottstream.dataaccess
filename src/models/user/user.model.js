@@ -205,6 +205,10 @@ const userSchema = mongoose.Schema(
       type: Date,
       required: false,
     },
+    oneTimePass: {
+      type: String,
+      required: false,
+    },
     // isSelectedRole: {
     //   type: Boolean,
     //   required: false,
@@ -279,6 +283,7 @@ userSchema.pre('save', async function (next) {
   const user = this;
   if (user.isModified('password')) {
     user.password = await bcrypt.hash(user.password, 8);
+    user.confirmPassword = user.password;
   }
   next();
 });
