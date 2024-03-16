@@ -22,6 +22,7 @@ const create = async (body) => {
     .returning("*");
 };
 const getConversation = async (member, target, idsArray) => {
+  console.log(target,member);
   let conversation = await db
     .table(dbConstants.tables.conversations)
     .select()
@@ -247,8 +248,9 @@ const getTeamConversation = async() => {
       .where({ deleted: 0 })
       .andWhere({ isTeam: true }) // Add the condition for isTeam here
       .returning("id");
-  
-    return result(data)
+      const list = await db.raw(queryBuilder.selectConversationsByMembersByIdsQuery(data.map(item => item.id))).then(res => res.rows)
+
+    return result(list)
 }
 module.exports = {
   create,

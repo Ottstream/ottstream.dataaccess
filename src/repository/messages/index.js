@@ -36,10 +36,26 @@ const edit = async (id, body) => {
         .update(body)
     return result(editedMesssage)
 }
+const findMessagesList = async (find, id) => {
+    try {
+      // Construct the query to search for messages based on conversationId and the provided find criteria
+      const messages = await db.table(dbConstants.tables.messages)
+        .where({ conversation: id })
+        .where('message', 'like', `%${find}%`)
+  
+      return messages;
+    } catch (error) {
+      throw error;
+    }
+  };
 
+
+  
 module.exports = {
     create,
     deleteMessage,
     getList,
-    edit
+    edit,
+    findMessagesList,
+
 }

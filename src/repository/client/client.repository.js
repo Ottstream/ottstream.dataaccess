@@ -1282,21 +1282,26 @@ const getClientFirstname = async (clientId) => {
 const getAll = async (filter) => {
   return Client.find(filter);
 };
-const getAllClients = async (providerId, search) => {
+const getAllClients = async (providerId, search, page, limit) => {
   try {
     const query = {
       provider: providerId,
       $or: [
         { 'personalInfo.firstname': { $regex: search, $options: 'i' } },
         { 'personalInfo.lastname': { $regex: search, $options: 'i' } },
-        // { 'phones':  { $regex: search, $options: 'i' } },
-        //  { 'emails':  { $regex: search, $options: 'i' } } 
+        // { 'phones.number': { $regex: search, $options: 'i' } } // Search by phones
       ]
     };
 
-    const clients = await Client
-      .find(query)
-      .select('personalInfo.firstname personalInfo.lastname personalInfo.sex personalInfo.avatar  phones emails');
+    // Calculate the number of documents to skip based on the page number and limit
+    const skip = (page - 1) * limit;
+
+    // Execute the query to find clients based on the search criteria
+    const clients = await Client.find(query)
+      .select('personalInfo.firstname personalInfo.lastname personalInfo.sex personalInfo.avatar phones emails')
+      .skip(skip) // Skip documents based on the calculated skip value
+      .limit(limit); // Limit the number of documents returned per page
+
     return clients;
   } catch (error) {
     console.error("Error fetching clients:", error);

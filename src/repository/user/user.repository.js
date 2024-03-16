@@ -67,18 +67,25 @@ const getUserByTelegramLogin = async (TelLogin) => {
 const getAllUsers = async (filter) => {
   return User.find(filter);
 };
-
-const getAllUsersTeam = async (filter, search) => {
+const getAllUsersTeam = async (filter, search, page, limit) => {
   try {
-    // Assuming 'User' is your Mongoose model
-    const users = await User.find({ 
+    // Calculate the number of documents to skip based on the page number and limit
+    const skip = (page - 1) * limit;
+
+    // Construct the MongoDB query
+    const query = { 
       provider: filter,
       $or: [
         { firstname: { $regex: search, $options: 'i' } }, // 'i' for case-insensitive
         { lastname: { $regex: search, $options: 'i' } }
       ]
-    })
-    .select('firstname lastname sex avatar id email phone');
+    };
+
+    // Execute the query with pagination
+    const users = await User.find(query)
+      .select('firstname lastname sex avatar id email phone')
+      .skip(skip) // Skip documents based on the calculated skip value
+      .limit(limit); // Limit the number of documents returned per page
   
     return users;
   } catch (error) {

@@ -1,6 +1,7 @@
 const httpStatus = require('http-status');
 const mongoose = require('mongoose');
 const { Chat } = require('../../models');
+const {create} = require("../messages/index")
 const ApiError = require('../../api/utils/error/ApiError');
 
 // eslint-disable-next-line no-unused-vars
@@ -161,6 +162,10 @@ const queryProviderCountChats = async (filter) => {
  */
 const createChat = async (itemBody) => {
   const body = itemBody;
+  // console.log(body);
+  const conversation = 1
+  // const author = providerSqlId
+ 
   // eslint-disable-next-line no-console
   const created = await Chat.create(body);
   return created;
