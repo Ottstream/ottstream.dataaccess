@@ -1284,12 +1284,18 @@ const getAll = async (filter) => {
 };
 const getAllClients = async (providerId, search, page, limit) => {
   try {
+    // Construct a regular expression to match any substring of the search term
+    // const regex = new RegExp(search.split('').join('.*'), 'i');
+    const regex = new RegExp(search.split('').join('.*\\s*'), 'i');
+
+
+    // Create the query object to search for substrings in firstname, lastname, or phoneNumber
     const query = {
       provider: providerId,
       $or: [
-        { 'personalInfo.firstname': { $regex: search, $options: 'i' } },
-        { 'personalInfo.lastname': { $regex: search, $options: 'i' } },
-        // { 'phones.number': { $regex: search, $options: 'i' } } // Search by phones
+        { 'personalInfo.firstname': { $regex: regex } },
+        { 'personalInfo.lastname': { $regex: regex } },
+        { 'phones.phone': { $regex: regex } }
       ]
     };
 
@@ -1299,9 +1305,9 @@ const getAllClients = async (providerId, search, page, limit) => {
     // Execute the query to find clients based on the search criteria
     const clients = await Client.find(query)
       .select('personalInfo.firstname personalInfo.lastname personalInfo.sex personalInfo.avatar phones emails')
-      .skip(skip) // Skip documents based on the calculated skip value
-      .limit(limit); // Limit the number of documents returned per page
-
+      .skip(skip)
+      .limit(limit);
+console.log(clients,56);
     return clients;
   } catch (error) {
     console.error("Error fetching clients:", error);

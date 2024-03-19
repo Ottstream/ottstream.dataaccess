@@ -18,17 +18,32 @@ const deleteMessage = async (id) => {
         .update({ deleted: 1, deleted_at: new Date() })
     return result(deletedList)
 }
-
-const getList = async (filter, limit = 10, page = 1, sortBy = 'created_at', sort = 'desc') => {
-    if (!filter.conversation) return result(null, 'filter by conversation required!')
-    const list = await db.table(dbConstants.tables.messages)
+const getList = async (filter, type, limit = 10, page = 1, sortBy = 'created_at', sort = 'desc') => {
+    try {
+      if (!filter.conversation) {
+        return result(null, 'Filter by conversation required!');
+      }
+  
+      let query = db.table(dbConstants.tables.messages)
         .select()
-        .where({ ...filter, deleted: 0})
+        .where({ ...filter, deleted: 0 })
         .orderBy(sortBy, sort)
         .limit(limit)
-        .offset((page - 1) * limit)
-    return result(list)
-}
+        .offset((page - 1) * limit);
+  
+      if (type !== 'all') {
+        query = query.andWhere('social_provider', type);
+      }
+  
+      const list = await query;
+  
+      return result(list);
+    } catch (error) {
+      console.error("Error fetching list:", error);
+      throw error;
+    }
+  };
+
 
 const edit = async (id, body) => {
     const editedMesssage = await db.table(dbConstants.tables.messages)

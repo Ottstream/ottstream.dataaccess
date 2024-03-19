@@ -6,7 +6,7 @@ exports.up = function(knex) {
     return knex.schema.alterTable('providers', (table) => {
         table.dropColumn('provider');
         // table.dropForeign(['provider'])
-        table.string('token');
+        table.string('parent_mongo_id').required();
         table.integer('phoneNumberId');
     })
 };

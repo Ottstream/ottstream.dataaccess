@@ -77,10 +77,10 @@ const getAllUsersTeam = async (filter, search, page, limit) => {
       provider: filter,
       $or: [
         { firstname: { $regex: search, $options: 'i' } }, // 'i' for case-insensitive
-        { lastname: { $regex: search, $options: 'i' } }
+        { lastname: { $regex: search, $options: 'i' } },
+        {'phone.phoneNumber':{$regex: search,$options: 'i'} } // Directly match phone number
       ]
     };
-
     // Execute the query with pagination
     const users = await User.find(query)
       .select('firstname lastname sex avatar id email phone')
