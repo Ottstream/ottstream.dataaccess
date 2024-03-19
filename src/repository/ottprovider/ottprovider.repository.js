@@ -2169,7 +2169,7 @@ const getList = async (filter = {}, populate = [], projection = null) => {
 };
 const getProviderbyParent = async (provider_id) => {
   try {
-    const result = await OttProvider.findOne({ parent: provider_id, status: 1 });
+    const result = await OttProvider.find({ parent: provider_id, status: 1 });
     return result;
   } catch (error) {
     // Handle errors here

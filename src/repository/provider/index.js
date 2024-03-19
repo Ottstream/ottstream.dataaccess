@@ -17,7 +17,16 @@ const get = async (ids) => {
     .where({ deleted: 0 })[0];
   return result(provider);
 };
+const getProviders = async (id) => {
+  const providers = await db.table(dbConstants.tables.providers)
+  .select()
+  .where({deleted: 0})
+  .andWhere({parent_mongo_id:id})
+  .select('*')
+  .orderBy('id');
 
+  return result(providers);
+}
 const getByMongoId = async (mongo_id) => {
   const provider = await db
     .table(dbConstants.tables.providers)
@@ -109,5 +118,6 @@ module.exports = {
   deleteProvider,
   getByMongoProvider,
   update,
-  getByMongoId
+  getByMongoId,
+  getProviders
 };
