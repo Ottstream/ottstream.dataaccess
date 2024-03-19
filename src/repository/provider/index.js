@@ -1,5 +1,6 @@
 const db = require("../../../db.pg");
 const dbConstants = require("../../constants/db.config");
+const { getProviderbyParent } = require('../ottprovider/ottprovider.repository');
 
 const table = db.table(dbConstants.tables.providers);
 const result = (data, error) => ({ error, data });
@@ -53,7 +54,9 @@ const getByMongoProvider = async (mongoProvider) => {
       .table(dbConstants.tables.providers)
       .insert({
         mongo_id: mongoProvider._id.toString(),
-        name: mongoProvider.name[0].name
+        name: mongoProvider.name[0].name,
+        parent_mongo_id: mongoProvider._id.toString()
+
       })
       .returning('*');
   }

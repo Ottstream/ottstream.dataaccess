@@ -101,7 +101,7 @@ const registerMember = async (chatMembers, type, providerSqlId) => {
             name: chatMember.name,
             avatar: chatMember.avatar || '', // Assuming avatar might be undefined, set it to an empty string if not provided
             phones: JSON.stringify(chatMember.phones), // Convert to JSON string
-            provider: providerSqlId.data.id
+            provider: providerSqlId
           })
           .returning('*')
           .then(ids => ids[0]);
