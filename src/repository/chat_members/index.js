@@ -141,9 +141,22 @@ const getList = async (filter, limit = 10, page = 1) => {
     .offset((page - 1) * limit);
   return result(list);
 };
+const findByPhone = async (phone) => {
+  try {
+    const data = await db.table(dbConstants.tables.chatMembers)
+      .select()
+      .where('phoneNumber', phone);
+    
+    return data;
+  } catch (error) {
+    console.error('Error finding record by phone number:', error);
+    throw error;
+  }
+}
 
 module.exports = {
   create,
+  findByPhone,
   findByUserId,
   getMemberByIdOrClientId,
   find,
