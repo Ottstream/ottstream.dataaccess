@@ -141,13 +141,67 @@ const getList = async (filter, limit = 10, page = 1) => {
     .offset((page - 1) * limit);
   return result(list);
 };
-const findByPhone = async (phone) => {
+const findByFromPhone = async (body,phone) => {
   try {
+    phone = `+${phone}`
     const data = await db.table(dbConstants.tables.chatMembers)
-      .select()
-      .where('phoneNumber', phone);
-    
-    return data;
+    .select()
+    .whereRaw(`EXISTS (
+      SELECT 1
+      FROM jsonb_array_elements(phones) AS phone
+      WHERE phone->>'phoneNumber' = ?
+    )`, [phone]);
+    if(data.length === 0 ) {
+      const phoneObject = { phoneNumber: `${phone}` }; // Convert phone number into JSON format
+
+      const data = await db.table(dbConstants.tables.chatMembers)
+      .insert({
+        name:body.name,
+        phones:JSON.stringify([phoneObject])
+      })
+      return data
+    }
+    return data[0];
+  } catch (error) {
+    console.error('Error finding record by phone number:', error);
+    throw error;
+  }
+}
+const findByToPhone = async (body,from_id) => {
+
+  try {
+   const phone = `+${body.to}` 
+    const data = await db.table(dbConstants.tables.chatMembers)
+    .select('*')
+    .whereRaw(`EXISTS (
+      SELECT 1
+      FROM jsonb_array_elements(phones) AS phone
+      WHERE phone->>'phoneNumber' = ?
+    )`, [phone]);
+    const updatedRows = await db.table(dbConstants.tables.chatMembers)
+    .where({ id: from_id })
+    .update({ provider: data[0].provider })
+    .returning('*');
+
+  if (updatedRows.length > 0) {
+    // Updated successfully
+    console.log('Record updated:', updatedRows[0]);
+  } else {
+    // No records were updated
+    console.log('No records were updated.');
+  }
+    // if(data.length === 0 ) {
+    //   console.log(phone);
+    //   const phoneObject = { phoneNumber: `+${phone}` }; // Convert phone number into JSON format
+
+    //   const data = await db.table(dbConstants.tables.chatMembers)
+    //   .insert({
+    //     name:body.name,
+    //     phones:JSON.stringify([phoneObject])
+    //   })
+    //   return data
+    // }
+    return data[0];
   } catch (error) {
     console.error('Error finding record by phone number:', error);
     throw error;
@@ -156,7 +210,8 @@ const findByPhone = async (phone) => {
 
 module.exports = {
   create,
-  findByPhone,
+  findByFromPhone,
+  findByToPhone,
   findByUserId,
   getMemberByIdOrClientId,
   find,

@@ -6,7 +6,6 @@ const result = (data, error) => ({ data, error })
 const create = async (body) => {
     if (!body.conversation) return result(null, 'missing conversation')
     if (!body.author) return result(null, 'missing author')
-
     const message = await db.table(dbConstants.tables.messages)
         .insert(body).returning('*')
     return result(message)

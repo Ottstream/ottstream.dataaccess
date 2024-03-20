@@ -21,6 +21,36 @@ const create = async (body) => {
     )
     .returning("*");
 };
+const checkConversation = async (member, target) => {
+  let conversation = await db
+    .table(dbConstants.tables.conversations)
+    .select()
+    .whereRaw(`members @> '${JSON.stringify([member.id, target.id])}'::jsonb`)
+    .where({ deleted: 0 })
+    .returning("id");
+
+  if (!conversation.length) {
+  
+    const members = JSON.stringify([member.id, target.id]);
+    
+    conversation = await db
+      .table(dbConstants.tables.conversations)
+      .insert({
+        name: target.name,
+        type: "single",
+        provider: member.provider,
+        members: members,
+        isTeam: false
+      })
+      .returning("id");
+  }
+
+  const conversationId = conversation[0].id;
+
+  conversation = await db.raw(queryBuilder.selectConversationsByMembersByIdQuery(conversationId)).then(res => res.rows[0])
+
+  return conversation;
+};
 const getConversation = async (member, target, idsArray) => {
   console.log(target,member);
   let conversation = await db
@@ -114,7 +144,7 @@ const getUsersList = async (ids, limit = 10, page = 1) => {
 // };
 
 
-const getList = async (filter, limit = 10, page = 1) => {
+const getList = async (filter, limit, page) => {
   const conversationsIdList= await db
     .table(dbConstants.tables.conversations)
     .select()
@@ -122,9 +152,12 @@ const getList = async (filter, limit = 10, page = 1) => {
     .andWhere({ isTeam: false }) // Add the condition for isTeam here
     .limit(limit)
     .offset((page - 1) * limit);
-    const list = await db.raw(queryBuilder.selectConversationsByMembersByIdsQuery(conversationsIdList.map(item => item.id))).then(res => res.rows)
-
-  return result(list);
+    if (conversationsIdList.length > 0) {
+      const list = await db.raw(queryBuilder.selectConversationsByMembersByIdsQuery(conversationsIdList.map(item => item.id))).then(res => res.rows)
+      return result(list);
+      
+    }
+      return []
 };
 
 const getByMongoId = async (mongo_id) => {
@@ -255,6 +288,7 @@ const getTeamConversation = async() => {
 module.exports = {
   create,
   getConversation,
+  checkConversation,
   getTeamConversation,
   getUsersList,
   getList,
