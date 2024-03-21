@@ -7,6 +7,7 @@ exports.up = function(knex) {
         table.increments('id').primary();
         table.integer('provider').unsigned();
         table.foreign('provider').references('providers.id');
+        table.string('email');
         table.timestamps(true, true);
     })
 };
