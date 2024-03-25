@@ -561,6 +561,7 @@ const queryClients = async (filter, options, user) => {
     },
     {
       path: 'paymentMethods',
+      select: ['_id']
     },
     {
       path: 'credits',
@@ -1279,8 +1280,8 @@ const getClientFirstname = async (clientId) => {
  * @param {ObjectId} filter
  * @returns {Promise<User>}
  */
-const getAll = async (filter) => {
-  return Client.find(filter);
+const getAll = async (filter, limit, page) => {
+  return await Client.find(filter).limit(limit).skip((page - 1) * limit);
 };
 const getAllClients = async (providerId, search) => {
   try {

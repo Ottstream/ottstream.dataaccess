@@ -89,8 +89,10 @@ const conversationsMemberRepository = require("./conversation_members");
 const messagesRepository = require("./messages");
 const participantRepository = require("./participant");
 const chatMembersRepository = require('./chat_members');
+const scriptsRepo = require('./scripts')
 
 module.exports = {
+  scriptsRepo,
   authRepository,
   backupRepository,
   conversationsMemberRepository,

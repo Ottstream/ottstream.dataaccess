@@ -531,12 +531,22 @@ const queryLocations = async (filter, options, user) => {
  * @returns {Promise<User>}
  */
 const getAll = async (filter) => {
-  return ClientLocation.find(filter);
+  return ClientLocation.find(filter).populate('Invoice');
 };
+
+const getBySubscriptions = async (filter) => {
+  return ClientLocation.find(filter).populate('subscriptions')
+}
+
+const update = async (filter, data) => {
+  return ClientLocation.updateMany(filter, data)
+}
 
 module.exports = {
   queryLocations,
   getAll,
+  update,
+  getBySubscriptions,
   resetAllPasswords,
   createClientLocation,
   queryClientLocations,

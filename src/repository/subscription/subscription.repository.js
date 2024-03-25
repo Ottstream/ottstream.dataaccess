@@ -352,11 +352,18 @@ const getList = async (filter = {}, populate = [], projection = null) => {
   return query;
 };
 
+const getALl = async (filter) => {
+  const list = await Subscription.find(filter)
+    .populate(['location', 'invoice'])
+  return list;
+}
+
 const updateInvoiceSubscriptoins = async (invoice) => {
   await Subscription.updateMany({ invoice }, { state: 0 });
 };
 
 module.exports = {
+  getALl,
   createSubscription,
   queryLocationSubscriptions,
   queryClientSubscriptions,

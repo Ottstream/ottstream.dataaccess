@@ -742,8 +742,14 @@ const getList = async (filter = {}, populate = [], projection = null) => {
   return query;
 };
 
+const getTransactionByIdList = async (idList) => {
+  const transactions = await Transaction.find({ _id: { $in: idList } })
+  return transactions;
+}
+
 module.exports = {
   createTransaction,
+  getTransactionByIdList,
   queryTransactions,
   getVoidTransactionsForCreditCard,
   getTransactionById,
