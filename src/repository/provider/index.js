@@ -1,5 +1,6 @@
 const db = require("../../../db.pg");
 const dbConstants = require("../../constants/db.config");
+const { getProviderbyParent } = require('../ottprovider/ottprovider.repository');
 
 const table = db.table(dbConstants.tables.providers);
 const result = (data, error) => ({ error, data });
@@ -16,7 +17,16 @@ const get = async (ids) => {
     .where({ deleted: 0 })[0];
   return result(provider);
 };
+const getProviders = async (id) => {
+  const providers = await db.table(dbConstants.tables.providers)
+  .select()
+  .where({deleted: 0})
+  .andWhere({parent_mongo_id:id})
+  .select('*')
+  .orderBy('id');
 
+  return result(providers);
+}
 const getByMongoId = async (mongo_id) => {
   const provider = await db
     .table(dbConstants.tables.providers)
@@ -25,24 +35,61 @@ const getByMongoId = async (mongo_id) => {
   return result(provider[0])
 }
 
+// const getByMongoProvider = async (mongoProvider) => {
+//   let provider = await db
+//     .table(dbConstants.tables.providers)
+//     .where({ mongo_id: mongoProvider._id.toString() })
+
+//   if (provider.length === 0) {
+//     provider = await db
+//       .table(dbConstants.tables.providers)
+//       .insert({
+//         mongo_id: mongoProvider._id.toString(),
+//         name: mongoProvider.name[0].name
+//       })
+//       .returning('*')
+//   }
+
+//   return result(provider[0])
+// }
 const getByMongoProvider = async (mongoProvider) => {
   let provider = await db
     .table(dbConstants.tables.providers)
-    .where({ mongo_id: mongoProvider._id.toString() })
+    .where({ mongo_id: mongoProvider._id.toString() });
 
   if (provider.length === 0) {
+    // If provider doesn't exist, insert it
     provider = await db
       .table(dbConstants.tables.providers)
       .insert({
         mongo_id: mongoProvider._id.toString(),
-        name: mongoProvider.name[0].name
+        name: mongoProvider.name[0].name,
+        parent_mongo_id: mongoProvider._id.toString()
+
       })
-      .returning('*')
+      .returning('*');
   }
 
-  return result(provider[0])
-}
+  // Fetch child providers and insert them
+  const childProviders = await getProviderbyParent(mongoProvider._id.toString());
+  for (const child of childProviders) {
+    const existingChild = await db
+      .table(dbConstants.tables.providers)
+      .where({ mongo_id: child._id.toString() });
 
+    if (existingChild.length === 0) {
+      await db
+        .table(dbConstants.tables.providers)
+        .insert({
+          mongo_id: child._id.toString(),
+          name: child.name[0].name,
+          parent_mongo_id: mongoProvider._id.toString()
+        });
+    }
+  }
+
+  return provider[0];
+}
 const getList = async (filter, limit = 10, page = 1) => {
   const list = await db.table(dbConstants.tables.providers)
     .select()
@@ -71,5 +118,6 @@ module.exports = {
   deleteProvider,
   getByMongoProvider,
   update,
-  getByMongoId
+  getByMongoId,
+  getProviders
 };

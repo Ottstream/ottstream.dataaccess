@@ -2167,9 +2167,20 @@ const getList = async (filter = {}, populate = [], projection = null) => {
   if (projection) query.projection(projection);
   return query;
 };
+const getProviderbyParent = async (provider_id) => {
+  try {
+    const result = await OttProvider.find({ parent: provider_id, status: 1 });
+    return result;
+  } catch (error) {
+    // Handle errors here
+    console.error("Error fetching provider:", error);
+    return null; // Return null or handle error as appropriate
+  }
+};
 
 module.exports = {
   getList,
+  getProviderbyParent,
   updatePaymentOptions,
   getPaymentOptions,
   resetBalances,

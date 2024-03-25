@@ -10,7 +10,7 @@ const create = async (member, providerID) => {
   if (!member._id) {
     return logger.error("No missing Mongo_id clients");
   }
-
+  let email = null;
   // Check if the member already exists
   const existingMember = await db.table(dbConstants.tables.clients)
     .where('mongo_id', member._id)
@@ -22,13 +22,17 @@ const create = async (member, providerID) => {
     return existingMember;
   }
 
+if (member.emails.length > 0) {
+  email = clientItem.emails[0].email; // Extract email if available
+}
   // If the member does not exist, insert it into the database
   const insertedMember = await db.table(dbConstants.tables.clients).insert({
     mongo_id: member._id,
     firstname: member.personalInfo.firstname,
     lastname: member.personalInfo.lastname,
     sex: member.personalInfo.sex,
-    provider: providerID
+    provider: providerID,
+    email:email
   }).returning("*");
 
   return insertedMember[0];
