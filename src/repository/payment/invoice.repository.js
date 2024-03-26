@@ -963,8 +963,19 @@ const getList = async (filter = {}, populate = [], projection = null) => {
   return query;
 };
 
+const getOne = async (filter) => {
+  return await Invoice.find(filter)
+}
+
+const getLast = async (filter) => {
+  const list = await Invoice.findOne(filter).sort({ createdAt: -1 })
+  return list
+}
+
 module.exports = {
   createInvoice,
+  getOne,
+  getLast,
   createLeftDaysInvoice,
   queryBillInvoicesV2,
   queryInvoices,

@@ -7,7 +7,7 @@ const logger = require('../../utils/logger/logger');
 
 const run = async () => {
     console.time('script')
-    // const clientIdList = ['6479b4aca9767697cfd283a5']
+    // const clientIdList = ['65d5a567c47c140f2f71c0bd']
     // const clients = await clientsRepo.getAll({ _id: { $in: clientIdList } })
     // let next = true
     // let page = 1, limit = 100
@@ -27,16 +27,51 @@ const run = async () => {
 
             let subscriptionDuration = 1;
 
-            const invoiceLocationIndex = clientSubscription.invoice?.payloadCalculated?.locations?.findIndex(a => a.locationId = clientSubscription.location)
-            console.log(clientSubscription.invoice?._id.toString());
-            if (invoiceLocationIndex > -1) {
-                subscriptionDuration = clientSubscription.invoice.payloadCalculated.locations[invoiceLocationIndex].month
+            let invoice =  await invoiceRepo.getLast({
+                location: clientSubscription.location
+            })
+            let invoiceLocation = null
+            if (!invoice) {
+                invoice = await invoiceRepo.getLast({
+                    location: clientSubscription.location
+                })
             }
+
+            const getSubscriptionDuration = () => {
+                let dur = 1
+                if (invoice) {
+                    const index = invoice.payloadCalculated.locations.findIndex(a => a.locationId = clientSubscription.location)
+                    if (index > -1) {
+                        dur = invoice.payloadCalculated.locations[index].month
+                        invoiceLocation = invoice.payloadCalculated.locations[index]
+                    }
+                }
+                return dur
+            }
+
+
+            subscriptionDuration = getSubscriptionDuration() //! corrct duration
+            // const invoiceLocationIndex = invoice.payloadCalculated?.locations?.findIndex(a => a.locationId = clientSubscription.location)
+            // if (invoiceLocationIndex > -1) {
+            //     subscriptionDuration = invoice.payloadCalculated.locations[invoiceLocationIndex].month
+            // }
             
             const getStartDate = () => {
-                console.log(moment.utc(clientSubscription.invoice?.payloadCalculated?.locations[0].packages[0]?.expireDate));
-                const source = clientSubscription.invoice?.payloadCalculated?.locations[0].packages[0]?.expireDate || clientSubscription.createdAt
-                let date = moment.utc(source)
+                if (!invoice) {
+                    return clientSubscription.createdAt
+                }
+                let date
+
+                if (invoiceLocation) {
+                    const packageIndex = invoiceLocation.packages.findIndex(i => i.packageId === clientSubscription.package.toString())
+                    if (packageIndex > -1) {
+                        date = invoiceLocation.packages[packageIndex].startDate
+                    }
+                }
+
+                if (!date) date = invoice.createdAt
+
+                date = moment.utc(date)
                 date.set({
                     hour: 0,
                     minute: 0
@@ -45,29 +80,36 @@ const run = async () => {
             }
             
             // const subscriptionStartDate = clientSubscription.invoice?.createdAt || clientSubscription.createdAt;
-            const subscriptionStartDate = getStartDate();
+            const subscriptionStartDate = getStartDate(); //! correct start date
 
             const calculateEndDate = () => {
                 let start, end
 
+                if (invoice && invoiceLocation) {
+                    invoiceLocation.packages.forEach(item => {
+                        if (item.expireNew) {
+                            if (!end) end = item.expireNew
+                            else if (moment(end).isBefore(item.expireNew)) end = item.expireNew
+                        } else if (item.expireDate) {
+                            if (!end) end = item.expireDate
+                            else if (moment(end).isBefore(item.expireDate)) end = item.expireDate
+                        }
+                    })
+                }
+
                 logger.info(client._id)
                 logger.info(`${client.personalInfo.firstname} ${client.personalInfo.lastname}`)
-                start = moment(subscriptionStartDate)
-                end = start.add(subscriptionDuration, 'months')
+                if (!end) {
+                    start = moment(subscriptionStartDate)
+                    end = start.add(subscriptionDuration, 'months')
+                }
 
                 return moment.utc(end)
             }
 
-            const subscriptionEndDate = calculateEndDate();
+            const subscriptionEndDate = calculateEndDate(); //! correct end date
 
-            if (client._id.toString() === '647898c94a7b10c3f93e1b5a') {
-                console.log(client._id);
-            }
-            
-            if (c === list.length - 2) {
-                console.log(client._id.toString());
-            }
-
+            let lastSubscription;
 
             const getSubscriptionState = () => {
                 let status = 2 
@@ -78,12 +120,10 @@ const run = async () => {
                     status = 1
                 } else {
                     if (c + 1 === list.length && list.length > 1) {
-                        const lastSubscription = list[c - 1]
+                        lastSubscription = list[c - 1]
                         console.log(moment.utc(lastSubscription?._doc?.endDate));
                         if (moment(subscriptionStartDate).isBefore(moment.utc(lastSubscription._doc?.endDate))) {
-                            if (lastSubscription._doc.state === 2) {
-                                status = 1
-                            } else status = lastSubscription._doc.state
+                            status = lastSubscription._doc.state
                         }
                     }
                 }
@@ -91,7 +131,7 @@ const run = async () => {
             }
             
             
-            let subscriptionState = getSubscriptionState();
+            let subscriptionState = getSubscriptionState(); //! correct state
 
 
             const isInDateRage = (date) => {
@@ -105,34 +145,40 @@ const run = async () => {
             logger.info(`Valid end date is ${subscriptionEndDate}`);
 
             const subscriptionActivationDate1 = clientSubscription._doc?.location?._doc.subscriptionActivationDate;
-            const subscriptionActivationDate = client._doc?.subscriptionActivationDate;
+            const subscriptionActivationDate = clientSubscription._doc?.location?._doc?.subscriptionActivationDate 
+                || clientSubscription._doc?.location?._doc?.lastActiveTime
+                || client._doc.subscriptionActivationDate || null;
 
             //? witch one is real data
             console.log(`Location activation date by Location ${moment(subscriptionActivationDate1).format()}`);
             console.log(`Location activation date by Client ${moment(subscriptionActivationDate).format()}`);
 
             if (subscriptionActivationDate) {
-                if (moment(subscriptionActivationDate).isAfter(moment(subscriptionStartDate)) 
-                    && moment(subscriptionActivationDate).isBefore(subscriptionEndDate)) {
-                    logger.info('Subscription must be active');
-                    // clientSubscription.state = 2;
-                    // clientSubscription.location.subscriptionActivationDate = subscriptionStartDate;
-                    if (clientSubscription._doc?.location && clientSubscription._doc?.location !== 3) {
-                        client.subscriptionState = 3; //? update client to subscription state like location
-                        clientSubscription._doc.location.subscriptionState = 3; //! active if subscription is active
-                    }
-                } else {
-                    // clientSubscription.state = 2; //! active because dates doesnt expire
-                    if (clientSubscription._doc?.location) {
-                        if (subscriptionState === 1) { //! is active
-                            client.subscriptionState = 3; //? update client to subscription state like location
-                            clientSubscription._doc.location.subscriptionState = 3; //! pending
-                        } else {
-                            client.subscriptionState = 0; //? update client to subscription state like location
-                            clientSubscription._doc.location.subscriptionState = 0; //! inactive because subscription is not valid, expired
-                        }
-                    }
+
+                if (clientSubscription._doc?.location && clientSubscription._doc?.location.subscriptionState !== 3) {
+                    client.subscriptionState = 3; //? update client to subscription state like location
+                    clientSubscription._doc.location.subscriptionState = 3; //! active if subscription is active
                 }
+
+                // if (moment(subscriptionActivationDate).isAfter(moment(subscriptionStartDate)) 
+                //     && moment(subscriptionActivationDate).isBefore(subscriptionEndDate)) {
+                //     logger.info('Subscription must be active');
+                //     if (clientSubscription._doc?.location && clientSubscription._doc?.location.subscriptionState !== 3) {
+                //         client.subscriptionState = 3; //? update client to subscription state like location
+                //         clientSubscription._doc.location.subscriptionState = 3; //! active if subscription is active
+                //     }
+                // } else {
+                //     // clientSubscription.state = 2; //! active because dates doesnt expire
+                //     if (clientSubscription._doc?.location) {
+                //         if (subscriptionState === 1) { //! is active
+                //             client.subscriptionState = 3; //? update client to subscription state like location
+                //             clientSubscription._doc.location.subscriptionState = 3; //! pending
+                //         } else {
+                //             client.subscriptionState = 0; //? update client to subscription state like location
+                //             clientSubscription._doc.location.subscriptionState = 0; //! inactive because subscription is not valid, expired
+                //         }
+                //     }
+                // }
 
                 //! if cancel and acitvation is available
                 if (clientSubscription._doc?.location?._doc.subscriptionCancelDate) {
@@ -179,6 +225,11 @@ const run = async () => {
             // }
 
             //!
+
+            if (clientSubscription.location?.subscriptionState === 3) {
+                if (subscriptionState === 1) clientSubscription.isActive = true
+                if (subscriptionState === 2) clientSubscription.isActive = false
+            }
 
             clientSubscription.state = subscriptionState
             clientSubscription.startDate = new Date(subscriptionStartDate);
