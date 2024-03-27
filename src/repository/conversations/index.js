@@ -52,7 +52,7 @@ const checkConversation = async (member, target) => {
   return conversation;
 };
 const getConversation = async (member, target, idsArray) => {
-  console.log(target,member);
+  console.log(target, member);
   let conversation = await db
     .table(dbConstants.tables.conversations)
     .select()
@@ -66,6 +66,11 @@ const getConversation = async (member, target, idsArray) => {
     const isTeam = isMemberInArray && isTargetInArray;
     const members = JSON.stringify([member.id, target.id]);
     
+    // Check if conversation creation is allowed
+    if (member.id === target.id) {
+      return {"Message":"Cannot create conversation with you."};
+    }
+    
     conversation = await db
       .table(dbConstants.tables.conversations)
       .insert({
@@ -73,7 +78,7 @@ const getConversation = async (member, target, idsArray) => {
         type: "single",
         provider: member.provider,
         members: members,
-        isTeam: isTeam
+        is_team: isTeam
       })
       .returning("id");
   }
@@ -147,7 +152,7 @@ const getUsersList = async (ids, limit = 10, page = 1) => {
 const getList = async (filter, limit, page) => {
   const conversationsIdList= await db
     .table(dbConstants.tables.conversations)
-    .select()
+    .select('*')
     .where({ ...filter, deleted: 0 })
     .andWhere({ isTeam: false }) // Add the condition for isTeam here
     .limit(limit)
