@@ -7,7 +7,17 @@ const logger = require('../../utils/logger/logger');
 
 const run = async () => {
     console.time('script')
-    // const clientIdList = ['65d5a567c47c140f2f71c0bd']
+    // const clientIdList = ['647898c94a7b10c3f93e1d65',
+    // '647898c94a7b10c3f93e1d65',
+    // '647899564a7b10c3f940818d',
+    // '647898ee4a7b10c3f93ec291',
+    // '6478996a4a7b10c3f940f39a',
+    // '647899764a7b10c3f94134bc',
+    // '6479b483a9767697cfd1f85b',
+    // '6478997a4a7b10c3f9414cad']
+    // const clientIdList = [
+    //     '647898ee4a7b10c3f93ec291'
+    // ]
     // const clients = await clientsRepo.getAll({ _id: { $in: clientIdList } })
     // let next = true
     // let page = 1, limit = 100
@@ -27,9 +37,15 @@ const run = async () => {
 
             let subscriptionDuration = 1;
 
-            let invoice =  await invoiceRepo.getLast({
-                location: clientSubscription.location
-            })
+            let invoice = clientSubscription.invoice
+            if (!invoice) {
+                console.log(client._id.toString());
+                console.log(invoice?._id.toString());
+                invoice = await invoiceRepo.getLast(
+                    { "payloadCalculated.locations.locationId": client.location?._id.toString() || clientSubscription.location?._id.toString() }
+                );
+            }
+
             let invoiceLocation = null
             if (!invoice) {
                 invoice = await invoiceRepo.getLast({
@@ -40,6 +56,7 @@ const run = async () => {
             const getSubscriptionDuration = () => {
                 let dur = 1
                 if (invoice) {
+                    console.log(invoice._id.toString());
                     const index = invoice.payloadCalculated.locations.findIndex(a => a.locationId = clientSubscription.location)
                     if (index > -1) {
                         dur = invoice.payloadCalculated.locations[index].month
@@ -85,16 +102,29 @@ const run = async () => {
             const calculateEndDate = () => {
                 let start, end
 
-                if (invoice && invoiceLocation) {
+
+                if (clientSubscription.invoice) {
                     invoiceLocation.packages.forEach(item => {
-                        if (item.expireNew) {
-                            if (!end) end = item.expireNew
-                            else if (moment(end).isBefore(item.expireNew)) end = item.expireNew
-                        } else if (item.expireDate) {
+                        if (item.expireDate) {
                             if (!end) end = item.expireDate
                             else if (moment(end).isBefore(item.expireDate)) end = item.expireDate
+                        } else if (item.expireNew) {
+                            if (!end) end = item.expireNew
+                            else if (moment(end).isBefore(item.expireNew)) end = item.expireNew
                         }
                     })
+                } else {
+                    if (invoice && invoiceLocation) {
+                        invoiceLocation.packages.forEach(item => {
+                            if (item.expireNew) {
+                                if (!end) end = item.expireNew
+                                else if (moment(end).isBefore(item.expireNew)) end = item.expireNew
+                            } else if (item.expireDate) {
+                                if (!end) end = item.expireDate
+                                else if (moment(end).isBefore(item.expireDate)) end = item.expireDate
+                            }
+                        })
+                    }
                 }
 
                 logger.info(client._id)
@@ -153,6 +183,10 @@ const run = async () => {
             console.log(`Location activation date by Location ${moment(subscriptionActivationDate1).format()}`);
             console.log(`Location activation date by Client ${moment(subscriptionActivationDate).format()}`);
 
+            if (clientSubscription._id.toString() === '65d2effe425d9e85b393d5ca') {
+                console.log('aaaaaa');
+            }
+
             if (subscriptionActivationDate) {
 
                 if (clientSubscription._doc?.location && clientSubscription._doc?.location.subscriptionState !== 3) {
@@ -184,7 +218,7 @@ const run = async () => {
                 if (clientSubscription._doc?.location?._doc.subscriptionCancelDate) {
 
                     if (isInDateRage(clientSubscription._doc.location._doc.subscriptionCancelDate)) {
-                        if (moment(clientSubscription._doc.location._doc.subscriptionCancelDate).isAfter(moment(clientSubscription._doc.location._doc.subscriptionActivationDate))) {
+                        if (moment(clientSubscription._doc.location._doc.subscriptionCancelDate).isAfter(moment(subscriptionActivationDate))) {
                             clientSubscription._doc.location.subscriptionState = 2; //! canceled
                             client.subscriptionState = 2; //? update client to subscription state like location
                         }                       
@@ -254,6 +288,86 @@ const run = async () => {
     // page++
     console.timeEnd('script')
 }
+
+// const run = async () => {
+//     let clientsMap = {}
+    
+//     const invoices = await invoiceRepo.getOne({
+//         createdAt: {
+//             $gt: new Date('2024-02-01'),
+//         }
+//     })
+
+//     invoices.forEach(item => {
+//         if (!clientsMap[item.client.toString()]) clientsMap[item.client.toString()] = {}
+//         let key = ''
+//         if (!item.location) {
+//             key = [item.payloadCalculated.locations[0].locationId]
+//         } else {
+//             key = [item.location.toString()]
+//         }
+
+//         if (!clientsMap[item.client.toString()][key]) clientsMap[item.client.toString()][key] = []
+
+//         clientsMap[item.client.toString()][key].push(item)
+//     })
+
+
+//     for (const clientId in clientsMap) {
+//         const locationsMaps = clientsMap[clientId]
+
+//         for (const locationId in locationsMaps) {
+//             const invoiceList = locationsMaps[locationId];
+//             const list = invoiceList.sort((a, b) => b.createdAt - a.createdAt)
+            
+//             if(list.length > 1) {
+
+
+
+//                 for (let i = 0; i < list.length -1; i++) {
+//                     const currnetInvoice = list[i];
+//                     const nextInvoice = list[i + 1];
+
+//                     console.log('currnetInvoice: ', currnetInvoice._id.toString())
+//                     console.log('nextInvoice: ', nextInvoice._id.toString())
+
+//                     const currentInvoiceLocation = currnetInvoice.payloadCalculated.locations[0]
+
+//                     const currentInvoiceDuration = currentInvoiceLocation.month //! payed month
+
+//                     const currentEndDate = currentInvoiceLocation.packages[0].expireNew || currentInvoiceLocation.packages[0].expireDate
+
+//                     const nextStartDateMask = moment(currentEndDate).add(currentInvoiceDuration, 'months')
+
+//                     const nextStartDate = nextInvoice.payloadCalculated.locations[0].packages[0].expireDate
+
+//                     function areSameYearAndMonth(dateA = moment(nextStartDateMask), dateB = moment(nextStartDate)) {
+//                         return dateA.year() === dateB.year() && dateA.month() === dateB.month();
+//                       }
+
+
+//                       if (!areSameYearAndMonth()) {
+//                         nextInvoice.payloadCalculated.locations[0].packages = 
+//                         nextInvoice.payloadCalculated.locations[0].packages.map(x => {
+//                             x.expireDate = nextStartDateMask
+//                             if (x.expireNew) {
+//                                 x.expireNew = moment(nextStartDateMask).add(nextInvoice.payloadCalculated.locations[0].month, 'months')
+//                                 console.log('expireNew: ', x.expireNew);
+//                             }
+
+//                             console.log('expireDate: ', x.expireDate);
+//                         })
+//                       }}
+
+//             }
+
+//         }
+
+//     }
+
+
+//     console.log(invoices);
+// }
 
 module.exports = {
     run

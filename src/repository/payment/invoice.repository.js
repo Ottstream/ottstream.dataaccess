@@ -968,7 +968,7 @@ const getOne = async (filter) => {
 }
 
 const getLast = async (filter) => {
-  const list = await Invoice.findOne(filter).sort({ createdAt: -1 })
+  const list = await Invoice.findOne(filter).sort({ createdAt: 1 })
   return list
 }
 

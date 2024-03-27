@@ -1,4 +1,4 @@
-const logger = require("ottstream.dataaccess/src/utils/logger/logger");
+const logger = require('../../utils/logger/logger');
 const db = require("../../../db.pg");
 const dbConstants = require("../../constants/db.config");
 const {getAllClients} = require('./client.repository');

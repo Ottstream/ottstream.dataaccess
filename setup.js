@@ -16,7 +16,7 @@ class DbSetup {
         autoIncrement.initialize(mongoose.connection);
 
         // Execute migrations
-        await this.runMigrations();
+        // await this.runMigrations();
 
         // After migrations are finished, call seed initialization function
       } catch (error) {
