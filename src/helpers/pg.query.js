@@ -1,7 +1,7 @@
 class PgQueryBuilder {
 
     selectConversationsByMembersByIdQuery(id) {
-        return `SELECT conversations.id, conversations.name, conversations.type, conversations.created_at, jsonb_agg(jsonb_build_object('id', subquery.member_id, 'name', subquery.member_name, 'phones', subquery.phones)) AS members
+        return `SELECT conversations.pinned_by, conversations.is_team,conversations.deleted, conversations.pinned,conversations.blocked, conversations.id, conversations.name, conversations.type, conversations.created_at, jsonb_agg(jsonb_build_object('id', subquery.member_id, 'name', subquery.member_name, 'phones', subquery.phones)) AS members
         FROM conversations
         LEFT JOIN (
             SELECT conversations.id AS conversation_id, chat_members.id AS member_id, chat_members.name AS member_name, chat_members.phones as phones
@@ -15,7 +15,7 @@ class PgQueryBuilder {
     }
     selectConversationsByMembersByIdsQuery(ids) {
         const idList = ids.join(','); // Assuming ids is an array of integers
-        return `SELECT conversations.id, conversations.name, conversations.type, conversations.created_at, jsonb_agg(jsonb_build_object('id', subquery.member_id, 'name', subquery.member_name, 'phones', subquery.phones)) AS members
+        return `SELECT conversations.pinned_by,conversations.is_team,conversations.deleted, conversations.pinned,conversations.blocked,conversations.id, conversations.name, conversations.type, conversations.created_at, jsonb_agg(jsonb_build_object('id', subquery.member_id, 'name', subquery.member_name, 'phones', subquery.phones)) AS members
         FROM conversations
         LEFT JOIN (
             SELECT conversations.id AS conversation_id, chat_members.id AS member_id, chat_members.name AS member_name, chat_members.phones as phones
