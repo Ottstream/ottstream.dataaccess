@@ -78,7 +78,7 @@ const getConversation = async (member, target, idsArray) => {
         type: "single",
         provider: member.provider,
         members: members,
-        isTeam: isTeam
+        is_team: isTeam
       })
       .returning("id");
   }
