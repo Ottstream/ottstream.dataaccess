@@ -104,7 +104,7 @@ const run = async () => {
 
 
                 if (clientSubscription.invoice) {
-                    invoiceLocation.packages.forEach(item => {
+                    invoiceLocation?.packages.forEach(item => {
                         if (item.expireDate) {
                             if (!end) end = item.expireDate
                             else if (moment(end).isBefore(item.expireDate)) end = item.expireDate
@@ -318,7 +318,7 @@ const run = async () => {
 
 //         for (const locationId in locationsMaps) {
 //             const invoiceList = locationsMaps[locationId];
-//             const list = invoiceList.sort((a, b) => b.createdAt - a.createdAt)
+//             const list = invoiceList.sort((a, b) => a.createdAt - b.createdAt)
             
 //             if(list.length > 1) {
 
@@ -337,6 +337,9 @@ const run = async () => {
 
 //                     const currentEndDate = currentInvoiceLocation.packages[0].expireNew || currentInvoiceLocation.packages[0].expireDate
 
+//                     console.log('current - invoice enddate is : ', currentEndDate);
+                    
+                 
 //                     const nextStartDateMask = moment(currentEndDate).add(currentInvoiceDuration, 'months')
 
 //                     const nextStartDate = nextInvoice.payloadCalculated.locations[0].packages[0].expireDate
@@ -349,13 +352,15 @@ const run = async () => {
 //                       if (!areSameYearAndMonth()) {
 //                         nextInvoice.payloadCalculated.locations[0].packages = 
 //                         nextInvoice.payloadCalculated.locations[0].packages.map(x => {
+//                             console.log('nextInvoice - expireDate: ', x.expireDate);
 //                             x.expireDate = nextStartDateMask
 //                             if (x.expireNew) {
+//                                 console.log('nextInvoice - expireNew: ', x.expireNew);
 //                                 x.expireNew = moment(nextStartDateMask).add(nextInvoice.payloadCalculated.locations[0].month, 'months')
-//                                 console.log('expireNew: ', x.expireNew);
+//                                 console.log('nextInvoice - expireNew - must be: ', x.expireNew);
 //                             }
+//                             console.log('nextInvoice - expireDate must be: ', x.expireDate);
 
-//                             console.log('expireDate: ', x.expireDate);
 //                         })
 //                       }}
 
