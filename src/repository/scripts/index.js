@@ -16,7 +16,7 @@ const run = async () => {
     // '6479b483a9767697cfd1f85b',
     // '6478997a4a7b10c3f9414cad']
     // const clientIdList = [
-    //     '647898ee4a7b10c3f93ec291'
+    //     '647899044a7b10c3f93f1805'
     // ]
     // const clients = await clientsRepo.getAll({ _id: { $in: clientIdList } })
     // let next = true
@@ -47,11 +47,11 @@ const run = async () => {
             }
 
             let invoiceLocation = null
-            if (!invoice) {
-                invoice = await invoiceRepo.getLast({
-                    location: clientSubscription.location
-                })
-            }
+            // if (!invoice) {
+            //     invoice = await invoiceRepo.getLast({
+            //         location: clientSubscription.location
+            //     })
+            // }
 
             const getSubscriptionDuration = () => {
                 let dur = 1
@@ -103,8 +103,8 @@ const run = async () => {
                 let start, end
 
 
-                if (clientSubscription.invoice) {
-                    invoiceLocation?.packages.forEach(item => {
+                if (clientSubscription.invoice && invoiceLocation) {
+                    invoiceLocation.packages.forEach(item => {
                         if (item.expireDate) {
                             if (!end) end = item.expireDate
                             else if (moment(end).isBefore(item.expireDate)) end = item.expireDate
@@ -352,6 +352,7 @@ const run = async () => {
 //                       if (!areSameYearAndMonth()) {
 //                         nextInvoice.payloadCalculated.locations[0].packages = 
 //                         nextInvoice.payloadCalculated.locations[0].packages.map(x => {
+//                             console.log(x.packageId, '------------------------------------------');
 //                             console.log('nextInvoice - expireDate: ', x.expireDate);
 //                             x.expireDate = nextStartDateMask
 //                             if (x.expireNew) {
@@ -360,6 +361,7 @@ const run = async () => {
 //                                 console.log('nextInvoice - expireNew - must be: ', x.expireNew);
 //                             }
 //                             console.log('nextInvoice - expireDate must be: ', x.expireDate);
+//                             console.log('------------------------------------------------------------------');
 
 //                         })
 //                       }}

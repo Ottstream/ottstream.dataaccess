@@ -354,7 +354,7 @@ const getList = async (filter = {}, populate = [], projection = null) => {
 
 const getALl = async (filter) => {
   const list = await Subscription.find(filter)
-    .populate(['location', 'invoice']).sort({ createdAt: -1 }).limit(2)
+    .populate(['location', 'invoice'])
   return list;
 }
 

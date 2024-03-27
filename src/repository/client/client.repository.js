@@ -1281,7 +1281,7 @@ const getClientFirstname = async (clientId) => {
  * @returns {Promise<User>}
  */
 const getAll = async (filter, limit, page) => {
-  return await Client.find(filter).limit(limit).skip((page - 1) * limit);
+  return await Client.find(filter)
 };
 const getAllClients = async (providerId, search, page, limit) => {
   try {
