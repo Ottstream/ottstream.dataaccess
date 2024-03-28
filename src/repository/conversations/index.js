@@ -40,7 +40,7 @@ const checkConversation = async (member, target) => {
         type: "single",
         provider: member.provider,
         members: members,
-        isTeam: false
+        is_team: false
       })
       .returning("id");
   }
@@ -154,7 +154,7 @@ const getList = async (filter, limit, page) => {
     .table(dbConstants.tables.conversations)
     .select('*')
     .where({ ...filter, deleted: 0 })
-    .andWhere({ isTeam: false }) // Add the condition for isTeam here
+    .andWhere({ is_team: false }) // Add the condition for isTeam here
     .limit(limit)
     .offset((page - 1) * limit);
     if (conversationsIdList.length > 0) {
@@ -209,7 +209,7 @@ const pinConversations = async(id, pinnedBy) => {
       const updatedConversation = await db
         .table(dbConstants.tables.conversations)
         .where({ id })
-        .update({ pinned: updatedPinnedStatus, pinnedBy: updatedPinnedBy });
+        .update({ pinned: updatedPinnedStatus, pinned_by: updatedPinnedBy });
 
       console.log(updatedConversation, "pinned:", updatedPinnedStatus);
 
@@ -284,7 +284,7 @@ const getTeamConversation = async() => {
       .table(dbConstants.tables.conversations)
       .select("*")
       .where({ deleted: 0 })
-      .andWhere({ isTeam: true }) // Add the condition for isTeam here
+      .andWhere({ is_team: true }) // Add the condition for isTeam here
       .returning("id");
       const list = await db.raw(queryBuilder.selectConversationsByMembersByIdsQuery(data.map(item => item.id))).then(res => res.rows)
 
