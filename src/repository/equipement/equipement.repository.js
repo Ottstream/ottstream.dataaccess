@@ -19,6 +19,7 @@ const equipmentPopulateObject = [
 // eslint-disable-next-line no-unused-vars
 const getEquipmentById = async (id, options = {}) => {
   const item = await Equipment.findById(id).populate([{ path: 'type' }]);
+  
   if (item) {
     item.typeName = item.type?.name?.length ? item.type.name[0].name : '';
   }
