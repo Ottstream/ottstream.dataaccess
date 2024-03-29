@@ -20,7 +20,8 @@ const dateUpdate = async () => {
         // '65a593a7e6e88d5a1fa337de',
         // '658e0282504546ca3086d769',
         // '647899944a7b10c3f941b8df',
-        // '647899664a7b10c3f940d909'
+        // '647899664a7b10c3f940d909',
+        // '647899c24a7b10c3f94270a7'
     ]
     // const clientsList = await clientsRepo.getAll({ _id: { $in: clientIdList } })
     // let next = true
@@ -57,7 +58,8 @@ const dateUpdate = async () => {
                         { "payloadCalculated.equipment.equipments": { "$exists": false } },
                         { "payloadCalculated.equipment.equipments": { "$size": 0 } }
                       ],
-                     isShipping: { $ne: true }
+                    payloadCalculated: { $ne: true },
+                    isShipping: { $ne: true }
                 }
             );
             
@@ -285,6 +287,9 @@ const dateUpdate = async () => {
             logger.info('-------------------------------------------')
             // const subscriptionActivationDate = clientSubscription.location.
         };
+        } else {
+            clientSubscription.state = 2
+            clientSubscription.save()
         }
     }
 
@@ -294,94 +299,66 @@ const dateUpdate = async () => {
     console.log(`Done ${count} of ${subscrioptionCount}`);
     // console.log(`${page * limit} done`)
     // page++
+
+    const nextScript = new Promise((res, rej) => res(locationsUpdate()))
+
+    nextScript.then(data => clientsUpdate())
+
+
     console.timeEnd('script')
+    // locationsUpdate()
+    // clientsUpdate()
 }
 
 const invoiceUpdate = async () => {
-    let clientsMap = {}
-    
-    const invoices = await invoiceRepo.getOne({
-        createdAt: {
-            $gt: new Date('2024-02-01'),
-        }
-    })
+    const idList = [
+        '6478996a4a7b10c3f940f2a1'
+    ]
+    const clients = await clientsRepo.getAll({ _id: { $in: idList } })
+    // const clients = await clientsRepo.getAll({}, 100, 1)
 
-    invoices.forEach(item => {
-        if (!clientsMap[item.client.toString()]) clientsMap[item.client.toString()] = {}
-        let key = ''
-        if (!item.location) {
-            key = [item.payloadCalculated.locations[0].locationId]
-        } else {
-            key = [item.location.toString()]
-        }
+    for (let index = 0; index < clients.length; index++) {
+        const item = clients[index];
+        const locations = await clientLocationRepo.getClientLocationByClientId(item._id)
+        if (locations.length) {
+            for (let locIndex = 0; locIndex < locations.length; locIndex++) {
+                const location = locations[locIndex];
+                const invoices = await invoiceRepo.getListBySortAndLimit({
+                    "payloadCalculated.locations.locationId": location?._id.toString(),
+                }, 2)
 
-        if (!clientsMap[item.client.toString()][key]) clientsMap[item.client.toString()][key] = []
+                if (invoices.length > 1) {
+                    const current = invoices[0]
+                    const prev = invoices[1]
 
-        clientsMap[item.client.toString()][key].push(item)
-    })
-
-
-    for (const clientId in clientsMap) {
-        const locationsMaps = clientsMap[clientId]
-
-        for (const locationId in locationsMaps) {
-            const invoiceList = locationsMaps[locationId];
-            const list = invoiceList.sort((a, b) => a.createdAt - b.createdAt)
-            
-            if(list.length > 1) {
-
-
-
-                for (let i = 0; i < list.length -1; i++) {
-                    const currnetInvoice = list[i];
-                    const nextInvoice = list[i + 1];
-
-                    console.log('currnetInvoice: ', currnetInvoice._id.toString())
-                    console.log('nextInvoice: ', nextInvoice._id.toString())
-
-                    const currentInvoiceLocation = currnetInvoice.payloadCalculated.locations[0]
-
-                    const currentInvoiceDuration = currentInvoiceLocation.month //! payed month
-
-                    const currentEndDate = currentInvoiceLocation.packages[0].expireNew || currentInvoiceLocation.packages[0].expireDate
-
-                    console.log('current - invoice enddate is : ', currentEndDate);
+                    const prevEndDate = null
+                    console.log('current', current._id.toString());
+                    console.log('prev', prev._id.toString());
+                    const currentDuration = current.payloadCalculated.locations[0].month || current.payloadCalculated.locations[0].day / 30
                     
-                 
-                    const nextStartDateMask = moment(currentEndDate).add(currentInvoiceDuration, 'months')
+                    const validStartDate = moment(prevEndDate).add(currentDuration, 'months');
+                    
+                    const startDate = current.payloadCalculated.locations[0].packages[0].startDate || current.startDate
+                    const endDate = current.payloadCalculated.locations[0].packages[0].expireDate || current.expireNew
 
-                    const nextStartDate = nextInvoice.payloadCalculated.locations[0].packages[0].expireDate
+                    const currentEndDate = moment(validStartDate).add(currentDuration, 'months')
 
-                    function areSameYearAndMonth(dateA = moment(nextStartDateMask), dateB = moment(nextStartDate)) {
-                        return dateA.year() === dateB.year() && dateA.month() === dateB.month();
-                      }
+                    console.log([item._id.toString()]);
+                    console.table([
+                        ['state', 'duration', 'start', 'end'],
+                        [0, currentDuration, moment(startDate), moment(endDate)],
+                        [0, currentDuration, moment(prevEndDate), moment(endDate)],
+                        [1, currentDuration, validStartDate, prevEndDate],
+                     ])
 
 
-                      if (!areSameYearAndMonth()) {
-                        nextInvoice.payloadCalculated.locations[0].packages = 
-                        nextInvoice.payloadCalculated.locations[0].packages.map(x => {
-                            console.log(x.packageId, '------------------------------------------');
-                            console.log('nextInvoice - expireDate: ', x.expireDate);
-                            x.expireDate = nextStartDateMask
-                            if (x.expireNew) {
-                                console.log('nextInvoice - expireNew: ', x.expireNew);
-                                x.expireNew = moment(nextStartDateMask).add(nextInvoice.payloadCalculated.locations[0].month, 'months')
-                                console.log('nextInvoice - expireNew - must be: ', x.expireNew);
-                            }
-                            console.log('nextInvoice - expireDate must be: ', x.expireDate);
-                            console.log('------------------------------------------------------------------');
-
-                        })
-                      }}
-
+                } else console.log(`Location ${location._id.toString()} has only one invoice`);
+                
             }
-
-        }
-
+        } else console.log(`${item._id.toString()} has 0 locations`);
     }
+        
 
-
-    console.log(invoices);
 }
 
 const locationsUpdate = async () => {

@@ -972,10 +972,15 @@ const getLast = async (filter) => {
   return list
 }
 
+const getListBySortAndLimit = async (filter, limit = 2) => {
+  return await Invoice.find(filter).limit(limit).sort({ createdAt: -1 })
+}
+
 module.exports = {
   createInvoice,
   getOne,
   getLast,
+  getListBySortAndLimit,
   createLeftDaysInvoice,
   queryBillInvoicesV2,
   queryInvoices,

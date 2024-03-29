@@ -534,6 +534,10 @@ const getAll = async (filter) => {
   return ClientLocation.find(filter);
 };
 
+const getAllBySort = async (filter, limit = 2) => {
+  return ClientLocation.find(filter).sort({ createdAt: -1 }).limit(limit);
+};
+
 const getList = async (filter) => {
   const list = await ClientLocation.find(filter)
   return list
@@ -548,6 +552,7 @@ const update = async (filter, data) => {
 }
 
 module.exports = {
+  getAllBySort,
   queryLocations,
   getAll,
   getList,
