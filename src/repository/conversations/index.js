@@ -278,16 +278,17 @@ const update = async (id, body) => {
   return result(updatedList);
 };
 
-const getTeamConversation = async() => {
-
-    let data = await db
-      .table(dbConstants.tables.conversations)
-      .select("*")
-      .where({ deleted: 0 })
-      .andWhere({ is_team: true }) // Add the condition for isTeam here
-      .returning("id");
-      const list = await db.raw(queryBuilder.selectConversationsByMembersByIdsQuery(data.map(item => item.id))).then(res => res.rows)
-
+const getTeamConversation = async(proiderId) => {
+  let data = await db
+  .table(dbConstants.tables.conversations)
+  .select("*")
+  .where({ deleted: 0 })
+  .andWhere({ is_team: true })
+  .andWhere({ provider: proiderId }) // Add condition for provider here
+  .returning("id");
+console.log(data,"data");
+      const list = await db.raw(queryBuilder.selectConversationsByMembersByIdsQuery(data.map(item => item.id))).then(res => res.rows);
+      console.log(list,"list");
     return result(list)
 }
 module.exports = {
