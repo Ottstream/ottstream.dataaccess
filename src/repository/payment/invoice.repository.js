@@ -976,10 +976,17 @@ const getListBySortAndLimit = async (filter, limit = 2) => {
   return await Invoice.find(filter).limit(limit).sort({ createdAt: -1 })
 }
 
+const updateInvoicePayload = async (id, payload) => {
+  const invoice = await Invoice.findById(id)
+  invoice.payloadCalculated = payload
+  return await invoice.save()
+}
+
 module.exports = {
   createInvoice,
   getOne,
   getLast,
+  updateInvoicePayload,
   getListBySortAndLimit,
   createLeftDaysInvoice,
   queryBillInvoicesV2,
