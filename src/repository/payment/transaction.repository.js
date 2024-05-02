@@ -742,9 +742,22 @@ const getList = async (filter = {}, populate = [], projection = null) => {
   return query;
 };
 
+const getLast = async (filter) => {
+  return await Transaction.findOne(filter).populate('invoice')
+}
+
 const getTransactionByIdList = async (idList) => {
   const transactions = await Transaction.find({ _id: { $in: idList } })
   return transactions;
+}
+
+const getClientTransactionsCount = async (clientId) => {
+  return await Transaction.countDocuments({
+    $or: [
+      { to_client: clientId },
+      { from_client: clientId }
+    ]
+  })
 }
 
 module.exports = {
@@ -757,6 +770,8 @@ module.exports = {
   updateTransactionById,
   deleteTransactionById,
   deleteMany,
+  getClientTransactionsCount,
   getList,
+  getLast,
   updateOne,
 };

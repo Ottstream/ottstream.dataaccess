@@ -543,6 +543,10 @@ const getList = async (filter) => {
   return list
 }
 
+const getById = async (id) => {
+  return await ClientLocation.findById(id)
+}
+
 const getBySubscriptions = async (filter) => {
   return ClientLocation.find(filter).populate('subscriptions')
 }
@@ -551,12 +555,18 @@ const update = async (filter, data) => {
   return ClientLocation.updateMany(filter, data)
 }
 
+const getDetailByFilter = async (filter, sort, populate) => {
+  return await ClientLocation.getOne(filter).sort(sort).populate(populate)
+}
+
 module.exports = {
   getAllBySort,
   queryLocations,
   getAll,
   getList,
   update,
+  getById,
+  getDetailByFilter,
   getBySubscriptions,
   resetAllPasswords,
   createClientLocation,

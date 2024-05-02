@@ -972,8 +972,16 @@ const getLast = async (filter) => {
   return list
 }
 
-const getListBySortAndLimit = async (filter, limit = 2) => {
-  return await Invoice.find(filter).limit(limit).sort({ createdAt: -1 })
+const getLastOne = async (filter) => {
+  return await Invoice.findOne(filter).sort({ createdAt: -1 })
+}
+
+const getListBySortAndLimit = async (filter, limit = 2, skip = 0) => {
+  return await Invoice.find(filter).skip(skip * limit).limit(limit).sort({ createdAt: 1 })
+}
+
+const getCounts = async (filter) => {
+  return await Invoice.countDocuments(filter)
 }
 
 const updateInvoicePayload = async (id, payload) => {
@@ -982,10 +990,17 @@ const updateInvoicePayload = async (id, payload) => {
   return await invoice.save()
 }
 
+const getAll = async (filter, sort, populate) => {
+  return Invoice.find(filter).sort(sort).populate(populate)
+}
+
 module.exports = {
   createInvoice,
   getOne,
   getLast,
+  getAll,
+  getLastOne,
+  getCounts,
   updateInvoicePayload,
   getListBySortAndLimit,
   createLeftDaysInvoice,

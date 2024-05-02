@@ -114,4 +114,6 @@ const clientAddressSchema = mongoose.Schema(
 // add plugin that converts mongoose to json
 clientAddressSchema.plugin(toJSON);
 
+
 module.exports = clientAddressSchema;
+

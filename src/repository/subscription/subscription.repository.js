@@ -352,6 +352,10 @@ const getList = async (filter = {}, populate = [], projection = null) => {
   return query;
 };
 
+const getById = async (id) => {
+  return await Subscription.findById(id)
+}
+
 const getALl = async (filter) => {
   const list = await Subscription.find(filter).sort({ createdAt: -1 })
     .populate(['location', 'invoice', 'returnInvoice'])
@@ -362,8 +366,25 @@ const updateInvoiceSubscriptoins = async (invoice) => {
   await Subscription.updateMany({ invoice }, { state: 0 });
 };
 
+const updateAll = async (filter, update) => {
+  return await Subscription.updateMany(filter, update);
+}
+
+const getOne = async (filter) => {
+  return await Subscription.findOne(filter).sort({ createdAt: -1 })
+}
+
+
+const getAllLastSubscriptions = async (filter, limit) => {
+  return await Subscription.find(filter).limit(limit).sort({ createdAt: -1 })
+}
+
 module.exports = {
   getALl,
+  updateAll,
+  getById,
+  getOne,
+  getAllLastSubscriptions,
   createSubscription,
   queryLocationSubscriptions,
   queryClientSubscriptions,
